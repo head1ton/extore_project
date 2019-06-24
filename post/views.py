@@ -2,5 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 # Create your views here.
 
-def index(request):
+def main_page(request):
     return HttpResponse('hihi')
+
+def post_list(request):
+    posts = Post.objects.all()
+    return render(request, 'post_list')
