@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{object.title|truncatechars:15}}
+{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="col"></div>
+    <div class="col-8">
+        <div class="alert alert-info">{{object.created}}</div>
+        {{object.text|safe}}
+        <!-- 커스텀 Tag값을 호출하기 위해 해당 모듈 호출 -->
+        {% load tagging_tags %}
+        <!-- object 객체에 포함된 tag들을 추출하여 그 객체를 tags로 변경 -->
+        {% tags_for_object object as tags %}
+        {% if tags %}
+            Tags :
+            {% for tag in tags %}
+                <a href="{% url 'post:post_taggedlist' tag.name %}">#{{tag.name}}</a>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="col"></div>
+</div>
+{% endblock %}
