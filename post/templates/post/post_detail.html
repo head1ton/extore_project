@@ -1,26 +1,99 @@
-{% extends 'base.html' %}
+{% extends 'post-base.html' %}
 
 {% block title %}
-{{object.title|truncatechars:15}}
+{% endblock %}
+
+{% block extra_style %}
+<style>
+    .btn-comment-like {
+        display:block;
+        font-size:13px;
+        color:rgb(37,71,194);
+    }
+    .btn-comment-like:hover {
+        text-decoration:none;
+        color:rgb(37,71,194);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="row mt-3">
-    <div class="col"></div>
-    <div class="col-8">
-        <div class="alert alert-info">{{object.created}}</div>
-        {{object.text|safe}}
-        <!-- 커스텀 Tag값을 호출하기 위해 해당 모듈 호출 -->
-        {% load tagging_tags %}
-        <!-- object 객체에 포함된 tag들을 추출하여 그 객체를 tags로 변경 -->
-        {% tags_for_object object as tags %}
-        {% if tags %}
-            Tags :
-            {% for tag in tags %}
-                <a href="{% url 'post:post_taggedlist' tag.name %}">#{{tag.name}}</a>
-            {% endfor %}
-        {% endif %}
+<div style="height:100px;"></div>
+<div id="screen">
+    <div id="post-list">
+        <a href="{% url 'post:list' %}" class="btn btn-primary" style="width:100px; float:right; margin-bottom:20px;">목록</a>
+        <div class="card" style="width: 40rem;">
+          <div id="profiles">
+              <div class="img-profile" style="background-image:url({{object.author.profile.url}})"></div>
+              <a class="a-tag name-profile" href="#">{{object.author.last_name}}{{object.author.first_name}}</a>
+              <p style="float:right; margin-right:10px; color:rgb(185,185,185);">
+                  {% load calc %}
+                  {{object.created|time_since}}
+              </p>
+          </div>
+          <img src="{{object.image.url}}" class="card-img-top">
+          <div class="card-body" style="padding:1.25rem 1.25rem 0.5rem 1.25rem;">
+             <ul style="list-style-type:none; padding:0">
+                  <li style="height:30px;margin-bottom:10px;">
+                      <a href="{% url 'post:post_like' object.id %}" class="btn-like {% if user in object.like.all %}activate{% endif %}" style="height:30px; margin-right:10px;"></a>
+                      <a href="{% url 'post:detail' object.id %}" class="btn-comment" style="height:30px;"></a>
+                      <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
+                  </li>
+                  <li style="font-size:15px; font-weight:bold;">
+                      좋아요 {{object.like.count}}개
+                  </li>
+                  <li style="margin:10px 0;">
+                      <a class="a-tag" href="#"><b>{{object.author.last_name}}{{object.author.first_name}}</b></a>
+                      <p style="display:inline-block; margin:0">{{object.text}}</p>
+                  </li>
+                  <li>
+                      {% load tagging_tags %}
+                      {% tags_for_object object as tags %}
+                      {% if tags %}
+                        {% for tag in tags %}
+                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}">#{{tag.name}}</a>
+                      {% endfor %}
+                      {% endif %}
+                  </li>
+              </ul>
+              <div style="height:10px;"></div>
+          </div>
+        </div>
+        <div class="card" style="width: 40rem; margin-top:-10px;">
+          <div>
+              <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
+              <div style="float:right; height:70px; line-height:70px;">
+                  <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+                      <form action="{% url 'post:comment_create' object.id %}" method="post">
+                          {% csrf_token %}
+                          <div class="row" style="width:590px; padding-right:10px;">
+                              <div class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+                              <div class="col">
+                                <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
+                              </div>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div id="comment_list">
+              {% for comment in comments %}
+                <div style="margin-bottom: 20px;">
+                    <div class="img-profile" style="background-image:url({{comment.author.profile.url}})"></div>
+                    <div style="float:left; height:100%; width:550px; line-height:100%;">
+                        <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+                            <p style="padding:10px; border-radius:25px; background-color:rgb(237,237,237); display:inline-block; margin:0">
+                                <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;{{comment.text}}
+                            </p>
+                            <a class="btn-comment-like" href="{% url 'post:comment_like' comment.id %}">&emsp;좋아요 {% if comment.like %}{{comment.like}}개{% endif %}</a>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+              {% endfor %}
+          </div>
+        </div>
     </div>
-    <div class="col"></div>
 </div>
+<div style="height:100px"></div>
 {% endblock %}
