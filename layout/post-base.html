@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- 구글 맵 api 연동 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    {% load static %}
+
+    {% block extra_style %}
+    {% endblock %}
+    <style>
+        .a-tag {
+            color: black;
+            text-decoration: none;
+        }
+        .a-tag:hover {
+            color: black;
+            text-decoration: none;
+        }
+        .btn-upload-post {
+            border-radius: 5px;
+            border-style:solid;
+            border-color:rgb(220,220,220);
+            border-width:1.2px;
+            color: black;
+            display:block;
+            width:40rem;
+            height:70px;
+            line-height:70px;
+        }
+        .btn-plus-div {
+            display:inline-block;
+            margin:10px;
+            vertical-align:middle;
+            line-height:normal;
+        }
+        .btn-phrase-div {
+            display:inline-block;
+            margin:10px 0 10px 5px;
+            vertical-align:middle;
+            line-height:normal;
+        }
+        .btn-plus {
+            width:40px;
+            height:40px;
+        }
+
+        .btn-upload-post:hover {
+            text-decoration:none;
+        }
+        .img-profile {
+            float:left;
+            display:inline-block;
+            width:50px;
+            height:50px;
+            border-radius:25px;
+            background-size:cover;
+            background-repeat:no-repeat;
+            background-position:center center;
+            margin:10px 15px 10px 10px;
+        }
+        #profiles {
+            height: 68px;
+            line-height: 68px;
+        }
+        .name-profile {
+            height: 68px;
+            vertical-align: middle;
+            line-height: normal;
+        }
+        .btn-like {
+            display:inline-block;
+            width: 30px;
+            height: 30px;
+            background-image:url({% static 'images/vacant-like.png' %});
+            background-repeat:no-repeat;
+            background-size:cover;
+
+        }
+        .btn-like.activate {
+            background-image:url({% static 'images/filled-like.png' %});
+
+        }
+        .btn-comment {
+            display:inline-block;
+            width: 30px;
+            height: 30px;
+            background-image:url({% static 'images/btn-comment.png' %});
+            background-repeat:no-repeat;
+            background-size:cover;
+        }
+        .btn-save {
+            display:inline-block;
+            width: 30px;
+            height: 30px;
+            background-image:url({% static 'images/vacant-bookmark.png' %});
+            background-repeat:no-repeat;
+            background-size:cover;
+        }
+        .btn-save.activate {
+            background-image:url({% static 'images/filled-bookmark.png' %});
+        }
+        .tags {
+            color:rgb(37,71,194);
+        }
+        .tags:hover {
+            color:rgb(37,71,194);
+            text-decoration:none;
+        }
+        #screen {
+            text-align:center;
+        }
+        #post-list {
+            width:40rem;
+            display:inline-block;
+            text-align:left;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block extra_script %}
+    {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
