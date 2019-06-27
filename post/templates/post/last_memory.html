@@ -1,0 +1,144 @@
+{% extends 'post-base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block extra_style %}
+<style>
+    #show-year {
+        width:250px;
+        height:100%;
+        background-color: rgb(237,237,237);
+        padding: 30px 20px;
+        text-align: center;
+        float:left;
+    }
+    #show-year-inner {
+        display: inline-block;
+        text-align: left;
+    }
+    .year-line {
+        height: 60px;
+        width: 3px;
+        display: inline-block;
+        background-color: rgb(150,150,150);
+        line-height: normal;
+        vertical-align: middle;
+        position: static;
+    }
+    .year-circle {
+        height: 20px;
+        width: 20px;
+        display: inline-block;
+        border-radius: 10px;
+        background-color: rgb(150,150,150);
+        line-height: normal;
+        vertical-align: middle;
+        margin-right: 10px;
+        position: relative;
+        left:-15px;
+    }
+    .show-year > p {
+        font-size: 20px;
+        margin: 0;
+        display: inline-block;
+        line-height: normal;
+        vertical-align: middle;
+    }
+    .show-year > p > span {
+        font-size: 15px;
+        vertical-align: middle;
+        color: rgb(150,150,150);
+    }
+    #show-posts {
+        width: 790px;
+        margin: 0 50px;
+        float:left;
+    }
+    .show-post {
+        width: 790px;
+        float:left;
+        margin-bottom:30px;
+        text-align: center;
+
+    }
+    .show-post-image {
+        width: 13rem;
+        height:200px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+    .show-post .card:hover {
+        cursor: pointer;
+    }
+    .year-move:hover {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="screen">
+<div style="display:inline-block; width:1200px;">
+<div id="show-year">
+    <div id="show-year-inner">
+        <p style="position:relative; left:-13px; color:rgb(130,130,130);">year</p>
+        {% if object_dict %}
+            {% for keys, values in object_dict.items %}
+                <div class="show-year" style="height:60px; line-height:60px;">
+                    <div class="year-line"></div>
+                    <div class="year-circle year-circle-{{keys}}"></div>
+                    {% ifequal values 1 %}
+                        <p class="year-move year-move-{{keys}}" onclick="year_move('{{keys}}');">{{keys}}&ensp;<span>{{values}} post</span></p>
+                    {% else %}
+                        <p class="year-move year-move-{{keys}}" onclick="year_move('{{keys}}')">{{keys}}&ensp;<span>{{values}} posts</span></p>
+                        {% endifequal %}
+                </div>
+            {% endfor %}
+        {% else %}
+        <!--포스트 없는 경우의 div 추가-->
+        {% endif %}
+    </div>
+</div>
+<!-- 전체 포스트 목록 -->
+<div id="show-posts">
+    <!-- 연도별 포스트 -->
+    {% for keys, values in object_dict.items %}
+    <div class="show-post">
+        <p class="year-{{keys}}" style="font-size:30px; text-align:center;">{{keys}}</p>
+        <div style="display:inline-block; text-algin:left;">
+        {% for object in object_list %}
+            {% load calc %}
+            {% ifequal object.created|return_year keys %}
+                <!--연도별 post 목록-->
+                <div class="card" onclick="location.href='{% url 'post:detail' object.id %}';" style="margin: 10px; width: 13rem; float:left; text-align:left;">
+                  <div class="show-post-image" style="background-image:url({{object.image.url}});"></div>
+                  <div style="padding:12px 20px;">
+                    <p class="card-text">{{object.text|truncatechars:9}}..</p>
+                  </div>
+                  <ul class="list-group list-group-flush">
+                      <li class="list-group-item">
+                          <p style="margin:0; display:inline-block; font-size:15px;">{{object.author.last_name}}{{object.author.first_name}}</p>
+                          <p style="margin:0; float:right; font-size:15px;">{{object.created|date:"n/j D"}}</p>
+                      </li>
+                  </ul>
+                </div>
+
+            {% endifequal %}
+        {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script type="text/javascript">
+$(function(){
+
+});
+</script>
+{% endblock %}

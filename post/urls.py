@@ -16,4 +16,5 @@ urlpatterns = [
     path('post/like/<int:post_id>/', post_like, name='post_like'),
     path('post/saved/<int:post_id>/', post_saved, name='post_saved'),
     path('post/comment/<int:comment_id>/', comment_like, name='comment_like'),
+    path('last_memory/', last_memory, name='last_memory'),
 ]

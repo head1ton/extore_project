@@ -17,12 +17,11 @@ def post_create(request):
         if form.is_valid():
             post = form.save()
             print(post)
-            return redirect(reverse('post:detail', args=[post.id]))
+            return redirect(reverse('post:list'))
     else:
         form = PostForm()
         return render(request, 'post/post_create.html', {'form':form})
 
-from django.utils import timezone
 def post_list(request):
     posts = Post.objects.all()
     return render(request, 'post/post_list.html', {'object_list':posts})
@@ -114,3 +113,15 @@ def comment_like(request, comment_id):
         comment.like += 1
         comment.save()
         return redirect(post)
+
+from functools import reduce
+def last_memory(request):
+    posts = Post.objects.all()
+
+    posts_year_li = []
+
+    for post in posts:
+        posts_year_li.append(post.created.strftime("%Y"))
+
+    posts_year_dict = reduce(lambda dict, ch: dict.update({ch:dict.get(ch,0)+1}) or dict, posts_year_li, {})
+    return render(request, 'post/last_memory.html', {'object_dict':posts_year_dict, 'object_list':posts})
