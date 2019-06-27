@@ -12,6 +12,25 @@
     {% block extra_style %}
     {% endblock %}
     <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        # header {
+            position: relative;
+            height: 100px;
+            z-index: 1;
+        }
+        #content {
+            margin: 100px 50px 100px;
+        }
+        #footer {
+            clear: both;
+            position: relative;
+            height: 100px;
+            z-index: 1;
+        }
         .a-tag {
             color: black;
             text-decoration: none;
@@ -120,17 +139,31 @@
         }
 
     </style>
+    <script>
+        function year_move(year){
+            var offset = $(".year-" + year).offset();
+            $("html,body").animate({scrollTop : offset.top}, 400);
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
+    <div id="header">
+        Header Area
+    </div>
+    <div id="content">
         {% block content %}
         {% endblock %}
     </div>
+    <div id="footer">
+        Footer Area
+    </div>
 
-    {% block extra_script %}
-    {% endblock %}
+    <script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    {% block extra_script %}
+    {% endblock %}
 </body>
 </html>

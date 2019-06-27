@@ -26,3 +26,7 @@ def time_since(value):
     else:
         return '지금'
 
+@register.filter
+def return_year(value):
+    return value.strftime("%Y")
+
