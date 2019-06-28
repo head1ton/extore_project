@@ -1,0 +1,41 @@
+{% extends 'schedule-base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block extra_style %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="'col-sm-8 col-md-8 col-lg-8">
+            <div class="form-group">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <ul style="list-style:none;">
+                        <li style="margin:20px;">{{form.title}}</li>
+                        <li style="margin:20px;">{{form.start}}</li>
+                        <li style="margin:20px;">{{form.end}}</li>
+                    </ul>
+                    <div style="float:right;">
+                        <a href="{% url 'schedule:index' %}" class="btn btn-outline-primary" style="margin-right:10px;">목록</a>
+                        <input type="submit" class="btn-push btn btn-primary" value="입력하기">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+
+<script>
+$(function () {
+
+});
+</script>
+{% endblock %}

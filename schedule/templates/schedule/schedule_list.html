@@ -1,0 +1,36 @@
+{% extends 'schedule-base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block extra_style %}
+<style>
+    .screen {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="screen">
+        <div style="width:880px; display:inline-block; text-align:right;">
+            <a href="{% url 'schedule:index' %}" class="btn btn-primary">캘린더 보기</a>
+        </div>
+        <div style="width:1000px; margin:0 auto; text-align:center;">
+            <div style="display: inline-block;">
+                {% for object in object_list %}
+                    <div class="card" style="margin: 15px; width:18rem; float:left;">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">{{object.title}}</li>
+                            <li class="list-group-item">{{object.start}}</li>
+                            <li class="list-group-item">{{object.end}}</li>
+                        </ul>
+                        <div class="card-body" style="text-align:center;">
+                            <a href="{% url 'schedule:update' object.id %}" style="margin:0 35px;" class="card-link">Update</a>
+                            <a href="{% url 'schedule:delete' object.id %}" style="margin:0 35px;" class="card-link">Delete</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
