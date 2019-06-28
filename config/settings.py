@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'tagging',
     'location_field.apps.DefaultConfig',
+    'fullcalendar',
 ]
 
 MIDDLEWARE = [
@@ -194,3 +195,5 @@ LOCATION_FIELD = {
         ),
     },
 }
+
+

@@ -125,3 +125,48 @@ def last_memory(request):
 
     posts_year_dict = reduce(lambda dict, ch: dict.update({ch:dict.get(ch,0)+1}) or dict, posts_year_li, {})
     return render(request, 'post/last_memory.html', {'object_dict':posts_year_dict, 'object_list':posts})
+
+# from django.http import JsonResponse
+# def show_comment(request, post_id):
+#     is_ajax = request.POST.get('is_ajax')
+#     post = Post.objects.get(pk=post_id)
+#     comments = post.comments.all()
+#     if is_ajax:
+#         div_comment = """
+#         <div class="card" style="width: 40rem; margin-top:-10px;">
+#               <div>
+#                   <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
+#                   <div style="float:right; height:70px; line-height:70px;">
+#                       <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+#                           <form action="{% url 'post:comment_create' object.id %}" method="post">
+#                               {% csrf_token %}
+#                               <div class="row" style="width:590px; padding-right:10px;">
+#                                   <div class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+#                                   <div class="col">
+#                                     <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
+#                                   </div>
+#                               </div>
+#                           </form>
+#                       </div>
+#                   </div>
+#               </div>
+#               <div id="comment_list">
+#                   {% for comment in comments %}
+#                     <div style="margin-bottom: 20px;">
+#                         <div class="img-profile" style="background-image:url({{comment.author.profile.url}})"></div>
+#                         <div style="float:left; height:100%; width:550px; line-height:100%;">
+#                             <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+#                                 <p style="padding:10px; border-radius:25px; background-color:rgb(237,237,237); display:inline-block; margin:0">
+#                                     <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;{{comment.text}}
+#                                 </p>
+#                                 <a class="btn-comment-like" href="{% url 'post:comment_like' comment.id %}">&emsp;좋아요 {% if comment.like %}{{comment.like}}개{% endif %}</a>
+#                             </div>
+#                         </div>
+#                         <div style="clear:both;"></div>
+#                     </div>
+#                   {% endfor %}
+#               </div>
+#             </div>
+#         """
+#
+#         return JsonResponse({'div_comment':div_comment})
