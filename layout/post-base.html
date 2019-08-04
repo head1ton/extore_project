@@ -10,8 +10,6 @@
 
     {% load static %}
 
-    {% block extra_style %}
-    {% endblock %}
     <style>
         html, body {
             margin: 0;
@@ -38,6 +36,9 @@
         }
         .a-tag:hover {
             color: black;
+            text-decoration: none;
+        }
+        #post-list .card .card-body a:hover {
             text-decoration: none;
         }
         .btn-upload-post {
@@ -112,6 +113,27 @@
             background-repeat:no-repeat;
             background-size:cover;
         }
+        .btn-comment-like {
+            display:block;
+            width:100px;
+            font-size:13px;
+            color:rgb(37,71,194);
+        }
+        .btn-comment-update-delete {
+            font-size:13px;
+            color:rgb(37,71,194);
+        }
+        .btn-comment-update-delete:hover {
+            text-decoration:none;
+            color:rgb(37,71,194);
+        }
+        .btn-comment-like:hover {
+            text-decoration:none;
+            color:rgb(37,71,194);
+        }
+        .none-display {
+            display: none;
+        }
         .btn-save {
             display:inline-block;
             width: 30px;
@@ -141,6 +163,8 @@
         }
 
     </style>
+    {% block extra_style %}
+    {% endblock %}
     <script>
         function year_move(year){
             var offset = $(".year-" + year).offset();
@@ -150,14 +174,14 @@
 </head>
 <body>
     <div id="header">
-        Header Area
+
     </div>
     <div id="content">
         {% block content %}
         {% endblock %}
     </div>
     <div id="footer">
-        Footer Area
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
