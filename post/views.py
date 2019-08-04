@@ -1,8 +1,8 @@
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect, render, get_list_or_404, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.template.loader import render_to_string
 from .models import *
 from .forms import *
 # Create your views here.
@@ -70,19 +70,37 @@ class TagList(TemplateView):
 
 
 def comment_create(request, post_id):
-    if request.method == 'POST':
-        post = Post.objects.get(pk=post_id)
-        comment_form = CommentForm(request.POST)
-        comment_form.instance.author_id = request.user.id
-        comment_form.instance.post_id = post_id
-        if comment_form.is_valid():
-            comment_form.save()
+    is_ajax = request.POST.get('is_ajax')
+    post = Post.objects.get(pk=post_id)
+    comment_form = CommentForm(request.POST)
+    comment_form.instance.author_id = request.user.id
+    comment_form.instance.post_id = post_id
+    if comment_form.is_valid():
+        comment = comment_form.save()
+    if is_ajax:
+        html = render_to_string('post/comment_single.html',{'comment':comment})
+        return JsonResponse({'html':html})
+    print("validation 실패")
+    return redirect(post)
 
-        return redirect(post)
+
 
 from urllib.parse import urlparse
 def post_like(request, post_id):
     post = Post.objects.get(pk=post_id)
+    is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET else (
+    request.POST.get('is_ajax', False), request.POST)
+
+    if is_ajax:
+        if request.user in post.like.all():
+            post.like.remove(request.user)
+            print("좋아요 해제")
+            return JsonResponse({'liked':False})
+        else:
+            post.like.add(request.user)
+            print("좋아요 클릭")
+            return JsonResponse({'liked': True})
+
     if request.method == "GET":
         # if not request.user.is_authenticated:
         #     return HttpResponseRedirect('/accounts/signin')
@@ -96,6 +114,18 @@ def post_like(request, post_id):
 
 def post_saved(request, post_id):
     post = Post.objects.get(pk=post_id)
+    is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET else (request.POST.get('is_ajax', False), request.POST)
+
+    if is_ajax:
+        if request.user in post.saved.all():
+            post.saved.remove(request.user)
+            print("북마크 해제")
+            return JsonResponse({'saved':False})
+        else:
+            post.saved.add(request.user)
+            print("북마크 등록")
+            return JsonResponse({'saved': True})
+
     if request.method == 'GET':
         if request.user in post.saved.all():
             post.saved.remove(request.user)
@@ -126,47 +156,25 @@ def last_memory(request):
     posts_year_dict = reduce(lambda dict, ch: dict.update({ch:dict.get(ch,0)+1}) or dict, posts_year_li, {})
     return render(request, 'post/last_memory.html', {'object_dict':posts_year_dict, 'object_list':posts})
 
-# from django.http import JsonResponse
-# def show_comment(request, post_id):
-#     is_ajax = request.POST.get('is_ajax')
-#     post = Post.objects.get(pk=post_id)
-#     comments = post.comments.all()
-#     if is_ajax:
-#         div_comment = """
-#         <div class="card" style="width: 40rem; margin-top:-10px;">
-#               <div>
-#                   <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
-#                   <div style="float:right; height:70px; line-height:70px;">
-#                       <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-#                           <form action="{% url 'post:comment_create' object.id %}" method="post">
-#                               {% csrf_token %}
-#                               <div class="row" style="width:590px; padding-right:10px;">
-#                                   <div class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
-#                                   <div class="col">
-#                                     <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
-#                                   </div>
-#                               </div>
-#                           </form>
-#                       </div>
-#                   </div>
-#               </div>
-#               <div id="comment_list">
-#                   {% for comment in comments %}
-#                     <div style="margin-bottom: 20px;">
-#                         <div class="img-profile" style="background-image:url({{comment.author.profile.url}})"></div>
-#                         <div style="float:left; height:100%; width:550px; line-height:100%;">
-#                             <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-#                                 <p style="padding:10px; border-radius:25px; background-color:rgb(237,237,237); display:inline-block; margin:0">
-#                                     <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;{{comment.text}}
-#                                 </p>
-#                                 <a class="btn-comment-like" href="{% url 'post:comment_like' comment.id %}">&emsp;좋아요 {% if comment.like %}{{comment.like}}개{% endif %}</a>
-#                             </div>
-#                         </div>
-#                         <div style="clear:both;"></div>
-#                     </div>
-#                   {% endfor %}
-#               </div>
-#             </div>
-#         """
-#
-#         return JsonResponse({'div_comment':div_comment})
+def show_comments(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    comment_form = CommentForm()
+    comments = post.comments.all()
+    return render(request, 'post/comments_list.html', {'object':post, 'comments':comments, 'comment_form':comment_form})
+
+def comment_like(request, comment_id):
+    is_ajax = request.POST.get("is_ajax")
+
+    if is_ajax:
+        comment = Comment.objects.get(pk=comment_id)
+        comment.like = comment.like + 1
+        comment.save()
+        print(comment.like)
+        return JsonResponse({'works':True})
+    return redirect('/')
+
+def comment_delete(request, comment_id):
+    pass
+
+def comment_update(reqeust, comment_id):
+    pass
