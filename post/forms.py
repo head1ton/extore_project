@@ -24,7 +24,7 @@ class PostForm(forms.ModelForm):
         self.fields['location'].label = ''
         self.fields['location'].widget.attrs = {'class':'form-control','placeholder':'위도,경도'}
         self.fields['created'].widget.attrs = {'class':'form-control','placeholder':'ex) 2019-06-26'}
-
+        
 
 class CommentForm(forms.ModelForm):
     class Meta:
