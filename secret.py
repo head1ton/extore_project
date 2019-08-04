@@ -1,1 +1,0 @@
-google_info = {'key':'AIzaSyA3UYPemF2DbeZgXA0ilq264m9qv74w2uc'}
