@@ -21,7 +21,7 @@
         </a>
         <div style="height:20px"></div>
         {% for object in object_list %}
-        <div class="card" style="width: 40rem;">
+        <div class="card card-div" style="width: 40rem;">
           <div id="profiles">
               <div class="img-profile" style="background-image:url({{object.author.profile.url}})"></div>
               <a class="a-tag name-profile" href="#">{{object.author.last_name}}{{object.author.first_name}}</a>
@@ -38,7 +38,7 @@
                       <a href="{% url 'post:detail' object.id %}" class="btn-comment" style="height:30px;"></a>
                       <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
                   </li>
-                  <li style="font-size:15px; font-weight:bold;">
+                  <li class="like-count" style="font-size:15px; font-weight:bold;">
                       좋아요 {{object.like.count}}개
                   </li>
                   <li style="margin:10px 0;">
@@ -56,7 +56,7 @@
                   </li>
               </ul>
               <div style="height:10px;"></div>
-              <a class="a-tag show-comment" style="color:grey" href="{% url 'post:detail' object.id %}">댓글 {{object.comments.count}}개 모두 보기</a>
+              <a class="show-comments" style="color:grey" href="{% url 'post:detail' object.id %}">댓글 {{object.comments.count}}개 모두 보기</a>
           </div>
         </div>
         <div style="height:20px"></div>
@@ -67,10 +67,60 @@
 {% endblock %}
 
 {% block extra_script %}
+<script type="text/javascript">
 $(function () {
+    $(".btn-like").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href');
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{csrf_token}}',
+                'is_ajax': true,
+            },
+        }).done(function(data){
+            if(data.liked){
+                selected_object.addClass("activate");
+                like_object = selected_object.parents("ul").children(".like-count");
+                str_like_content = like_object.html().trim();
+                int_like_count = str_like_content.match(/[0-9]/g);
+                like_count = parseInt(int_like_count[0]) + 1;
+                like_object.html("좋아요 "+like_count+"개")
 
-<!--$(".show-comment').click(function() {-->
+            }
+            else{
+                selected_object.removeClass("activate");
+                like_object = selected_object.parents("ul").children(".like-count");
+                str_like_content = like_object.html().trim();
+                int_like_count = str_like_content.match(/[0-9]/g);
+                like_count = parseInt(int_like_count[0]) - 1;
+                like_object.html("좋아요 "+like_count+"개")
+            }
+        });
+    });
 
-<!--});-->
+    $(".btn-save").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href');
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{csrf_token}}',
+                'is_ajax': true,
+            },
+        }).done(function(data){
+        if(data.saved){
+            selected_object.addClass("activate");
+        }
+        else{
+            selected_object.removeClass("activate");
+        }
+        });
+    });
 });
+</script>
 {% endblock %}

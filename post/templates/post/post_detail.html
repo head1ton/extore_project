@@ -5,15 +5,6 @@
 
 {% block extra_style %}
 <style>
-    .btn-comment-like {
-        display:block;
-        font-size:13px;
-        color:rgb(37,71,194);
-    }
-    .btn-comment-like:hover {
-        text-decoration:none;
-        color:rgb(37,71,194);
-    }
     .back-to-page {
     width:100px;
     float:right;
@@ -26,7 +17,6 @@
 <div style="height:100px;"></div>
 <div id="screen">
     <div id="post-list">
-<!--        <a href="{% url 'post:list' %}" class="btn btn-primary style="width:100px; float:right; margin-bottom:20px;">목록</a>-->
         <button class="btn btn-primary back-to-page" onclick="history.go(-1);">목록</button>
         <div class="card" style="width: 40rem;">
           <div id="profiles">
@@ -45,7 +35,7 @@
                       <a href="{% url 'post:detail' object.id %}" class="btn-comment" style="height:30px;"></a>
                       <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
                   </li>
-                  <li style="font-size:15px; font-weight:bold;">
+                  <li class="like-count" style="font-size:15px; font-weight:bold;">
                       좋아요 {{object.like.count}}개
                   </li>
                   <li style="margin:10px 0;">
@@ -70,10 +60,11 @@
               <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
               <div style="float:right; height:70px; line-height:70px;">
                   <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-                      <form action="{% url 'post:comment_create' object.id %}" method="post">
+                      <form action="{% url 'post:comment_create' object.id %}" method="post" id="comment_form">
                           {% csrf_token %}
+                          <input type="hidden" name="is_ajax" value="">
                           <div class="row" style="width:590px; padding-right:10px;">
-                              <div class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+                              <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
                               <div class="col">
                                 <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
                               </div>
@@ -83,20 +74,7 @@
               </div>
           </div>
           <div id="comment_list">
-              {% for comment in comments %}
-                <div style="margin-bottom: 20px;">
-                    <div class="img-profile" style="background-image:url({{comment.author.profile.url}})"></div>
-                    <div style="float:left; height:100%; width:550px; line-height:100%;">
-                        <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-                            <p style="padding:10px; border-radius:25px; background-color:rgb(237,237,237); display:inline-block; margin:0">
-                                <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;{{comment.text}}
-                            </p>
-                            <a class="btn-comment-like" href="{% url 'post:comment_like' comment.id %}">&emsp;좋아요 {% if comment.like %}{{comment.like}}개{% endif %}</a>
-                        </div>
-                    </div>
-                    <div style="clear:both;"></div>
-                </div>
-              {% endfor %}
+            {% include 'post/comment_list.html' %}
           </div>
         </div>
     </div>
@@ -106,9 +84,102 @@
 
 {% block extra_script %}
 <script type="text/javascript">
-$(function() {
+$(function () {
+    $(".btn-like").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href');
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{csrf_token}}',
+                'is_ajax': true,
+            },
+        }).done(function(data){
+            if(data.liked){
+                selected_object.addClass("activate");
+                like_object = selected_object.parents("ul").children(".like-count");
+                str_like_content = like_object.html().trim();
+                int_like_count = str_like_content.match(/[0-9]/g);
+                like_count = parseInt(int_like_count[0]) + 1;
+                like_object.html("좋아요 "+like_count+"개")
 
+            }
+            else{
+                selected_object.removeClass("activate");
+                like_object = selected_object.parents("ul").children(".like-count");
+                str_like_content = like_object.html().trim();
+                int_like_count = str_like_content.match(/[0-9]/g);
+                like_count = parseInt(int_like_count[0]) - 1;
+                like_object.html("좋아요 "+like_count+"개")
+            }
+        });
+    });
+
+    $(".btn-save").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href');
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{csrf_token}}',
+                'is_ajax': true,
+            },
+        }).done(function(data){
+        if(data.saved){
+            selected_object.addClass("activate");
+        }
+        else{
+            selected_object.removeClass("activate");
+        }
+        });
+    });
+
+    $("#comment_form").submit(function(e){
+        e.preventDefault();
+        $('input[name="is_ajax"]').val("1");
+        url = $(this).attr('action');
+        params = $(this).serialize(); // 현재 값들을 하나로 모은다.
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: params,
+        }).done(function(data){
+            $('#comment_list').prepend(data.html);
+            $('input[name="is_ajax"]').val("");
+            $('#id_text').val("");
+        });
+    });
+
+    $(".btn-comment-like").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href')
+        console.log(url);
+        $.ajax({
+            url:url,
+            method:"POST",
+            data:{
+                'csrfmiddlewaretoken':'{{csrf_token}}',
+                'is_ajax':true,
+            },
+        }).done(function(data){
+            if(data.works){
+                str_comment_like = selected_object.html().trim();
+                if(str_comment_like.match(/[0-9]+/g)==null){
+                    selected_object.html("&emsp;좋아요 1개")
+                }
+                else{
+                    int_comment_like = str_comment_like.match(/[0-9]+/g);
+                    comment_like = parseInt(int_comment_like[0]) + 1;
+                    selected_object.html("&emsp;좋아요 "+comment_like+"개")
+                }
+            }
+        });
+    });
 });
 </script>
-
 {% endblock %}
