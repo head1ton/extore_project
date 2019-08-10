@@ -3,8 +3,11 @@ from tagging.fields import TagField
 from location_field.models.plain import PlainLocationField
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from extore.models import Group
+
 
 class Post(models.Model):
+    group_id = models.IntegerField()
     author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True, related_name="posts")
     image = models.ImageField(upload_to='timeline_photo/%Y/%m/%d')
     text = models.TextField()
@@ -21,6 +24,7 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('post:detail', args=[self.id])
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')

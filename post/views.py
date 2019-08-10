@@ -10,7 +10,7 @@ from .forms import *
 def main_page(request):
     return HttpResponse('EXTORE에 오신 것을 환영합니다.')
 
-def post_create(request):
+def post_create(request, group_id):
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         form.instance.author_id = request.user.id
@@ -22,7 +22,7 @@ def post_create(request):
         form = PostForm()
         return render(request, 'post/post_create.html', {'form':form})
 
-def post_list(request):
+def post_list(request, group_id):
     posts = Post.objects.all()
     return render(request, 'post/post_list.html', {'object_list':posts})
 
@@ -57,16 +57,19 @@ def post_update(request, post_id):
         form = PostForm(instance=post)
     return render(request, 'post/post_update.html', {'form':form})
 
-# 태그 기능 관련
-from tagging.views import TaggedObjectList
-class PostTaggedObjectList(TaggedObjectList):
-    model = Post
-    allow_empty = True
-    template_name = 'post/post_list.html'
-
-from django.views.generic import TemplateView
-class TagList(TemplateView):
-    template_name = 'post/tag_list.html'
+# # 태그 기능 관련
+# from tagging.views import TaggedObjectList
+#
+# class PostTaggedObjectList(TaggedObjectList):
+#     model = Post
+#     allow_empty = True
+#     template_name = 'post/post_list.html'
+#
+#
+#
+# from django.views.generic import TemplateView
+# class TagList(TemplateView):
+#     template_name = 'post/tag_list.html'
 
 
 def comment_create(request, post_id):
@@ -145,8 +148,8 @@ def comment_like(request, comment_id):
         return redirect(post)
 
 from functools import reduce
-def last_memory(request):
-    posts = Post.objects.all()
+def last_memory(request, group_id):
+    posts = Post.objects.filter(group_id=group_id)
 
     posts_year_li = []
 

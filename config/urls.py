@@ -19,9 +19,10 @@ from django.conf import settings
 from django.views.static import serve
 from django.urls import re_path
 urlpatterns = [
-    # path('ckeditor/', include('ckeditor_uploader.urls')),
-    # path('board/', include('board.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('board/', include('board.urls')),
     path('', include('post.urls')),
+    path('extore/', include('extore.urls')),
     path('schedule/', include('schedule.urls')),
     path('admin/', admin.site.urls),
     # 라이브 상태일 때 serve 뷰 사용하여 연결
