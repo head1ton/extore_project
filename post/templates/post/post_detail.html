@@ -180,6 +180,57 @@ $(function () {
             }
         });
     });
+
+    $(".btn-comment-delete").click(function(e){
+        e.preventDefault();
+        var input = confirm('댓글을 삭제하시겠습니까?');
+        if (input==true){
+            selected_object = $(e.currentTarget);
+            url = selected_object.attr('href');
+            console.log(url);
+            $.ajax({
+                url: url,
+                method: "POST",
+                data:{
+                    'csrfmiddlewaretoken':'{{csrf_token}}',
+                    'is_ajax':true,
+                }
+            }).done(function(data){
+                if (data.works){
+                    selected_object.parents('.comment-single').remove();
+                }
+                if (data.works==false){
+                    alert('not possible');
+                }
+            });
+        }
+    });
+
+    $('.btn-comment-update').click(function(e) {
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href')+'?is_ajax=1';
+        comment = selected_object.siblings('p').children('.comment-text');
+        input = "<input type='text' class='update-text' value='"+comment.text()+"'>";
+        comment.html(input);
+        $('.update-text').keypress(function(e){
+            if (e.keyCode==13) {
+                text = $(this).val();
+                $.ajax({
+                    url:url,
+                    data:{
+                        text:text
+                    }
+                }).done(function(data) {
+                    if(data.works) {
+                        comment.text(text);
+                    }
+                });
+            }
+        });
+    });
+
 });
+
 </script>
 {% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'tagging',
     'location_field.apps.DefaultConfig',
     'fullcalendar',
+    'extore',
 ]
 
 MIDDLEWARE = [

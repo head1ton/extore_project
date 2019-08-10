@@ -1,13 +1,17 @@
-<div style="margin-bottom: 20px;">
+<div class="comment-single" style="margin-bottom: 20px;">
     <div class="img-profile" style="background-image:url({{comment.author.profile.url}})"></div>
     <div style="float:left; height:100%; width:550px; line-height:100%;">
         <div style="display:inline-block; vertical-align:middle; line-height:normal;">
             <p style="padding:10px; border-radius:25px; background-color:rgb(237,237,237); display:inline-block; margin:0">
-                <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;{{comment.text}}
+                <a style="color:rgb(37,71,194); font-weight:bold;" href="#">{{comment.author.last_name}}{{comment.author.first_name}}</a>&emsp;
+                <a class="comment-text">{{comment.text}}</a>
             </p>
             <a class="btn-comment-like" href="{% url 'post:comment_like' comment.id %}">&emsp;좋아요 {% if comment.like %}{{comment.like}}개{% endif %}</a>
-            <a class="btn-comment-update-delete" href="{% url 'post:comment_update' comment.id %}">&emsp;수정</a>
-            <a class="btn-comment-update-delete" href="{% url 'post:comment_delete' comment.id %}">삭제</a>
+
+            {% if user.is_superuser or comment.author == user %}
+            <a class="btn-comment-update" href="{% url 'post:comment_update' comment.id %}">&emsp;수정</a>
+            <a class="btn-comment-delete" href="{% url 'post:comment_delete' comment.id %}">삭제</a>
+            {% endif %}
         </div>
     </div>
     <div style="clear:both;"></div>

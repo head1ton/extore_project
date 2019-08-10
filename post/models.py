@@ -32,7 +32,11 @@ class Comment(models.Model):
     like = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.author.username + "의 댓글"
+        try:
+            return self.author.username + "의 댓글"
+        except AttributeError:
+            return '비회원의 댓글'
+
 
     class Meta:
         ordering = ['-id']

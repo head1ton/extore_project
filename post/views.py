@@ -39,7 +39,7 @@ def post_delete(request, post_id):
     # 로그인한 유저가 작성자일 경우, 해당 포스트 삭제 버튼 보이도록
     # ajax post요청일 경우, detail 페이지로 이동
     if request.method == "POST":
-        if post.author != request.user:
+        if post.author != request.user or request.user:
             messages.warning(request, '삭제할 권한이 없습니다.')
             return redirect(reverse_lazy('post:detail', args=[post.id]))
     # ajax 요청이 아닌경우, delete 페이지로 이동
@@ -174,7 +174,27 @@ def comment_like(request, comment_id):
     return redirect('/')
 
 def comment_delete(request, comment_id):
-    pass
+    is_ajax = request.POST.get("is_ajax")
 
-def comment_update(reqeust, comment_id):
-    pass
+    if is_ajax:
+        print('is ajax ok')
+        comment = Comment.objects.get(pk=comment_id)
+        if comment.author == request.user or request.user.is_superuser:
+            comment.delete()
+        else:
+            messages.warning(request, '삭제할 권한이 없습니다.')
+            return JsonResponse({'works':False})
+
+        return JsonResponse({'works':True})
+
+def comment_update(request, comment_id):
+    is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET else (request.POST.get('is_ajax', False), request.POST)
+
+    comment = Comment.objects.get(id=comment_id)
+    if is_ajax:
+        form = CommentForm(data, instance=comment)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'works':True})
+        else:
+            return JsonResponse({'works':False})
