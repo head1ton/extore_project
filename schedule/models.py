@@ -3,10 +3,11 @@ from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from extore.models import Group
 
+User = get_user_model()
 
 class CalendarEvent(models.Model):
-    group_id = models.IntegerField()
-    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True, related_name="schedules")
+    extore = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='schedules')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="schedules")
     title = models.CharField(_('Title'), max_length=200)
     start = models.DateTimeField(_('Start'))
     end = models.DateTimeField(_('End'))

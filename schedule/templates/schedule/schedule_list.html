@@ -13,7 +13,7 @@
 {% block content %}
     <div class="screen">
         <div style="width:880px; display:inline-block; text-align:right;">
-            <a href="{% url 'schedule:index' %}" class="btn btn-primary">캘린더 보기</a>
+            <a href="{% url 'schedule:index' %}?extore={{group.id}}" class="btn btn-primary">캘린더 보기</a>
         </div>
         <div style="width:1000px; margin:0 auto; text-align:center;">
             <div style="display: inline-block;">
@@ -25,8 +25,8 @@
                             <li class="list-group-item">{{object.end}}</li>
                         </ul>
                         <div class="card-body" style="text-align:center;">
-                            <a href="{% url 'schedule:update' object.id %}" style="margin:0 35px;" class="card-link">Update</a>
-                            <a href="{% url 'schedule:delete' object.id %}" style="margin:0 35px;" class="card-link">Delete</a>
+                            <a href="{% url 'schedule:update' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Update</a>
+                            <a href="{% url 'schedule:delete' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Delete</a>
                         </div>
                     </div>
                 {% endfor %}

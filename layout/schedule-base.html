@@ -3,66 +3,305 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        {% load fullcalendar_tags %}
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        {% fullcalendar_css %}
-        {% fullcalendar_print_css %}
-        {% fullcalendar_jquery %}
-        {% fullcalendar_jquery_ui %}
-        {% fullcalendar_javascript %}
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load fullcalendar_tags %}
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    {% fullcalendar_css %}
+    {% fullcalendar_print_css %}
+    {% fullcalendar_jquery %}
+    {% fullcalendar_jquery_ui %}
+    {% fullcalendar_javascript %}
 
-        {% calendar_init calendar_config_options %}
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                height: 100%;
-            }
-            # header {
-                position: relative;
-                height: 100px;
-                z-index: 1;
-            }
-            #content {
-                margin: 100px 50px 100px;
-            }
-            #footer {
-                clear: both;
-                position: relative;
-                height: 100px;
-                z-index: 1;
-            }
-        </style>
-        {% block extra_style %}
-        {% endblock %}
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+    {% calendar_init calendar_config_options %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+    # header {
+        position: relative;
+        height: 100px;
+        z-index: 1;
+    }
+    #content {
+        margin: 30px 50px 100px;
+    }
+    #footer {
+        clear: both;
+        position: relative;
+        height: 100px;
+        z-index: 1;
+    }
+    .a-tag {
+        color: black;
+        text-decoration: none;
+    }
+    .a-tag:hover {
+        color: black;
+        text-decoration: none;
+    }
+    #post-list .card .card-body a:hover {
+        text-decoration: none;
+    }
+    .btn-upload-post {
+        border-radius: 5px;
+        border-style:solid;
+        border-color:rgb(220,220,220);
+        border-width:1.2px;
+        color: black;
+        display:block;
+        width:40rem;
+        height:70px;
+        line-height:70px;
+    }
+    .btn-plus-div {
+        display:inline-block;
+        margin:10px;
+        vertical-align:middle;
+        line-height:normal;
+    }
+    .btn-phrase-div {
+        display:inline-block;
+        margin:10px 0 10px 5px;
+        vertical-align:middle;
+        line-height:normal;
+    }
+    .btn-plus {
+        width:40px;
+        height:40px;
+    }
 
-        <!-- Add your site or application content here -->
-        <div id="header">
+    .btn-upload-post:hover {
+        text-decoration:none;
+    }
+    .img-profile {
+        float:left;
+        display:inline-block;
+        width:50px;
+        height:50px;
+        border-radius:25px;
+        background-size:cover;
+        background-repeat:no-repeat;
+        background-position:center center;
+        margin:10px 15px 10px 10px;
+    }
+    #profiles {
+        height: 68px;
+        line-height: 68px;
+    }
+    .name-profile {
+        height: 68px;
+        vertical-align: middle;
+        line-height: normal;
+    }
+    .btn-like {
+        display:inline-block;
+        width: 30px;
+        height: 30px;
+        background-image:url({% static 'images/vacant-like.png' %});
+        background-repeat:no-repeat;
+        background-size:cover;
 
+    }
+    .btn-like.activate {
+        background-image:url({% static 'images/filled-like.png' %});
+
+    }
+    .btn-comment {
+        display:inline-block;
+        width: 30px;
+        height: 30px;
+        background-image:url({% static 'images/btn-comment.png' %});
+        background-repeat:no-repeat;
+        background-size:cover;
+    }
+    .btn-comment-like {
+        display:block;
+        width:100px;
+        font-size:13px;
+        color:rgb(37,71,194);
+    }
+    .btn-comment-update {
+        font-size:13px;
+        color:rgb(37,71,194);
+    }
+    .btn-comment-delete {
+        font-size:13px;
+        color:rgb(37,71,194);
+    }
+    .btn-comment-update:hover {
+        text-decoration:none;
+        color:rgb(37,71,194);
+     }
+
+     .btn-comment-delete:hover {
+        text-decoration:none;
+        color:rgb(37,71,194);
+    }
+    .btn-comment-like:hover {
+        text-decoration:none;
+        color:rgb(37,71,194);
+    }
+    .none-display {
+        display: none;
+    }
+    .btn-save {
+        display:inline-block;
+        width: 30px;
+        height: 30px;
+        background-image:url({% static 'images/vacant-bookmark.png' %});
+        background-repeat:no-repeat;
+        background-size:cover;
+    }
+    .btn-save.activate {
+        background-image:url({% static 'images/filled-bookmark.png' %});
+    }
+    .tags {
+        color:rgb(37,71,194);
+    }
+    .tags:hover {
+        color:rgb(37,71,194);
+        text-decoration:none;
+    }
+    #screen {
+        text-align:center;
+    }
+    #post-list {
+        width:40rem;
+        display:inline-block;
+        text-align:left;
+
+    }
+    .main_logo .navbar{
+        height: 160px;
+        margin-top: -50px;
+    }
+    .main_center a{
+        position: absolute;
+        left: 50%;
+        transform: translatex(-50%);
+        font-size: 50px;
+    }
+    .navbar-brand {
+    font-family: 'Courier';
+    }
+    div#navbarSupportedContent{z-index:9999;}
+
+    .navbar-nav.extore {
+        margin-top: -10px;
+        position: absolute;
+        left: 50%;
+        transform: translatex(-50%);
+    }
+    .navbar.navbar-expand-lg{
+        height: 40px;
+    }
+    .profile_img img{
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+    .card.text-center{
+        width: 200px;
+    }
+    .add_img{
+
+        float: left;
+    }
+    </style>
+    {% block extra_style %}
+    {% endblock %}
+</head>
+<body>
+    {% load static %}
+    <div class="main_logo">
+        <nav class="navbar navbar-light bg-transparent navbar-center">
+            <div class="main_center">
+                <a class="navbar-brand" href="{% url 'extore:extore_list' %}">
+                    <img src="{% static 'images/main_icon.jpg' %}" width="70" height="70" class="d-inline-block align-top" alt="">
+                    EXTORE
+                </a>
+            </div>
+        </nav>
+    </div>
+    <hr>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav extore mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+    {% load static %}
+    <div class="row mx-auto">
+        <div class="col">
+            <div class="container">
+                <div class="card" style="width: 12rem; height: 35rem;">
+                    <div class="card-body">
+                        <h6 class="text-center">{{group.title}}</h6>
+                        <hr>
+                        {% for member in group.member.all %}
+                            <div class="profile_img text-center" >
+                                <img src="{{member.profile.url}}" >
+                                <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
+                                <br>
+                                </div>
+                        {% endfor %}
+                            <div class="profile_img text-center" >
+                            <img src="{% static 'images/plus_icon.png' %}" >
+                                <div class="member_text text-center" style="font-size:15px;">Add</div>
+                                <br>
+                            </div>
+
+                        <div class="card-footer text-center text-muted">
+                                <h5>Extore List</h5><hr>
+                                {% for group in group_list %}
+                                    <div class="extore_list text-center">
+                                        {{group.title}}
+                                    </div>
+                                {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="content">
-            {% block content %}
-            {% endblock %}
-        </div>
-        <div id="footer">
+    </div>
 
-        </div>
+    <!--[if lt IE 7]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        {% block extra_script %}
-        {%  endblock %}
-    </body>
+    <!-- Add your site or application content here -->
+    {% block content %}
+    {% endblock %}
+
+    <div id="footer">
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    {% block extra_script %}
+    {%  endblock %}
+</body>
 </html>

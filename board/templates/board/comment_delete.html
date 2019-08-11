@@ -1,0 +1,9 @@
+{% extends 'post-base.html' %}
+{% block content %}
+<form action="" method="post">
+    <div class="alert alert-danger">해당 댓글을 삭제하실건가요?</div>
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" value="댓글 삭제" class="btn btn-outline-danger">
+</form>
+{% endblock %}

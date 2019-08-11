@@ -32,7 +32,7 @@
              <ul style="list-style-type:none; padding:0">
                   <li style="height:30px;margin-bottom:10px;">
                       <a href="{% url 'post:post_like' object.id %}" class="btn-like {% if user in object.like.all %}activate{% endif %}" style="height:30px; margin-right:10px;"></a>
-                      <a href="{% url 'post:detail' object.id %}" class="btn-comment" style="height:30px;"></a>
+                      <a href="{% url 'post:detail' object.id %}?extore={{group.id}}" class="btn-comment" style="height:30px;"></a>
                       <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
                   </li>
                   <li class="like-count" style="font-size:15px; font-weight:bold;">
@@ -47,7 +47,7 @@
                       {% tags_for_object object as tags %}
                       {% if tags %}
                         {% for tag in tags %}
-                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}">#{{tag.name}}</a>
+                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}?extore={{group.id}}">#{{tag.name}}</a>
                       {% endfor %}
                       {% endif %}
                   </li>
@@ -148,9 +148,7 @@ $(function () {
             method: "POST",
             data: params,
         }).done(function(data){
-            $('#comment_list').prepend(data.html);
-            $('input[name="is_ajax"]').val("");
-            $('#id_text').val("");
+            location.reload();
         });
     });
 
@@ -186,21 +184,14 @@ $(function () {
         var input = confirm('댓글을 삭제하시겠습니까?');
         if (input==true){
             selected_object = $(e.currentTarget);
-            url = selected_object.attr('href');
+            url = selected_object.attr('href')+"?is_ajax=1";
             console.log(url);
             $.ajax({
                 url: url,
-                method: "POST",
-                data:{
-                    'csrfmiddlewaretoken':'{{csrf_token}}',
-                    'is_ajax':true,
-                }
+
             }).done(function(data){
                 if (data.works){
                     selected_object.parents('.comment-single').remove();
-                }
-                if (data.works==false){
-                    alert('not possible');
                 }
             });
         }

@@ -19,7 +19,7 @@ Together
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             {% for group in group_list %}
             <a class="dropdown-item" href="{% url 'extore:extore_detail' group.id %}">
-                {{group}}
+                {{group.title}}
             </a>
             {% endfor %}
         </div>

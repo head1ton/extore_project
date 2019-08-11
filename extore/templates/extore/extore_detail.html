@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'post-base.html' %}
 {% block title %}
 {% endblock %}
 
@@ -8,27 +8,28 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav extore mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="{% url 'board:boardlist' group.id %}">Free Talk <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
       </li>
         <li class="nav-item active">
-        <a class="nav-link" href="{% url 'extore:extore_list' %}">Post <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
       </li>
         <li class="nav-item active">
-        <a class="nav-link" href="{% url 'extore:extore_list' %}">Last Memory <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
       </li>
         <li class="nav-item active">
-        <a class="nav-link" href="{% url 'extore:extore_list' %}">Schedule <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
       </li>
+
     </ul>
   </div>
 </nav>
-{% load staticfiles %}
-<div class="container">
-    <div class="row mx-auto">
-        <div class="col">
+{% load static %}
+<div class="row mx-auto">
+    <div class="col">
+        <div class="container">
             <div class="card" style="width: 12rem; height: 35rem;">
                 <div class="card-body">
-                    <h6 class="text-center">{{group}}</h6>
+                    <h6 class="text-center">{{group.title}}</h6>
                     <hr>
                     {% for member in group.member.all %}
                         <div class="profile_img text-center" >
@@ -46,78 +47,17 @@
                     <div class="card-footer text-center text-muted">
                             <h5>Extore List</h5><hr>
                             {% for group in group_list %}
-                            <div class="extore_list text-center">
-                                {{group}}
-                            </div>
+                                <div class="extore_list text-center">
+                                    {{group.title}}
+                                </div>
                             {% endfor %}
-                        </div>
-
+                    </div>
                 </div>
             </div>
         </div>
-<!--        <div class="col">-->
-<!--            <div class="card" style="width: 53rem; height: 35rem;">-->
-<!--                <div class="card " style="margin: 20px; margin-top: 0; auto; width: 50rem; height: 3rem;">-->
-<!--                    <div class="profile_img" >-->
-<!--                        <div class="member_text" style="margin-top: 10px; font-size:15px;">-->
-<!--                            <a href="{% url 'board:board_create' group.id %}">-->
-<!--                                <img src="{% static 'images/plus_icon.png' %}" ></a>-->
-<!--                                글을 추가 하세요!</div>-->
-<!--                            <br>-->
-<!--                        </div>-->
-<!--                </div>-->
-<!--                <div class="card " style="margin: 0 auto; width: 50rem; height: 10rem;">-->
-<!--                    <span style="font-size:20px">{{board_list.0.title}}-->
-<!--                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-->
-<!--                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-->
-
-<!--                    작성자: {{board_list.0.author.last_name}}{{board_list.0.author.first_name}}-->
-<!--                        {{board_list.0.created.month}}월 {{board_list.0.created.day}}일 {{board_list.0.created.time}}</span><hr>-->
-<!--                    {{board_list.0.text|safe}}-->
-<!--                </div>-->
-<!--                <div class="card " style="margin: 0 auto; margin-top: 10px; width: 50rem; height: 10rem;">-->
-<!--                    <span style="font-size:20px">{{board_list.1.title}}-->
-<!--                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-->
-<!--                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-->
-<!--    -->
-<!--                    작성자: {{board_list.1.author.last_name}}{{board_list.1.author.first_name}}-->
-<!--                        {{board_list.1.created.month}}월 {{board_list.1.created.day}}일 {{board_list.1.created.time}}</span><hr>-->
-<!--                    {{board_list.1.text|safe}}-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
     </div>
 </div>
 
-
-
-<style>
-    div#navbarSupportedContent{z-index:9999;}
-
-    .navbar-nav.extore {
-        margin-top: -10px;
-        position: absolute;
-        left: 50%;
-        transform: translatex(-50%);
-    }
-    .navbar.navbar-expand-lg{
-        height: 40px;
-    }
-    .profile_img img{
-        height: 30px;
-        width: 30px;
-        border-radius: 50%;
-    }
-    .card.text-center{
-        width: 200px;
-    }
-    .add_img{
-
-        float: left;
-
-    }
-
-</style>
 
 {% endblock %}
 

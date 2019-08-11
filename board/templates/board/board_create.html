@@ -1,13 +1,36 @@
-{% extends 'base.html' %}
+{% extends 'post-base.html' %}
+
 {% block title %}
+
 {% endblock %}
 
 {% block content %}
-<form action="" method="post">
-    {% csrf_token %}
-    <!--ckeditor 사용-->
-<!--    {{form.media}}-->
-<!--    {{form.as_p}}-->
-    <input type="submit" value="">
-</form>
+<div class="row mt-3">
+    <div class="col-8">
+        <form action="" method="post"  enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.media}}
+            <table class="table table-striped">
+            {{form.as_table}}
+            </table>
+            <input type="submit" class="btn btn-primary" value="Write">
+        </form>
+    </div>
+    <div class="col"></div>
+</div>
+
+<style>
+    div#navbarSupportedContent{z-index:9999;}
+
+    .navbar-nav.extore {
+        margin-top: -10px;
+        position: absolute;
+        left: 50%;
+        transform: translatex(-50%);
+    }
+    .navbar.navbar-expand-lg{
+        height: 40px;
+    }
+</style>
+
 {% endblock %}

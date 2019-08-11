@@ -5,8 +5,8 @@ app_name='extore'
 
 urlpatterns=[
     path('', group_list, name='extore_list'),
-    path('detail/<int:group_id>/',group_detail, name='extore_detail'),
-    path('create/', group_create, name='extore_create'),
-    path('delete/', group_delete, name='extore_delete'),
+    path('extore/detail/<int:group_id>/',group_detail, name='extore_detail'),
+    path('extore/create/', group_create, name='extore_create'),
+    path('extore/delete/<int:group_id>/', group_delete, name='extore_delete'),
 
 ]

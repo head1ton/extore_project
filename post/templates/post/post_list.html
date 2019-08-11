@@ -10,7 +10,7 @@
 <div style="height:100px;"></div>
 <div id="screen">
     <div id="post-list">
-        <a href="{% url 'post:create' %}" class="btn-upload-post">
+        <a href="{% url 'post:create' %}?extore={{group.id}}" class="btn-upload-post">
             <div class="btn-plus-div">
                 <img class="btn-plus" src="{% static 'images/plus.png' %}">
             </div>
@@ -35,7 +35,7 @@
               <ul style="list-style-type:none; padding:0">
                   <li style="height:30px;margin-bottom:10px;">
                       <a href="{% url 'post:post_like' object.id %}" class="btn-like {% if user in object.like.all %}activate{% endif %}" style="height:30px; margin-right:10px;"></a>
-                      <a href="{% url 'post:detail' object.id %}" class="btn-comment" style="height:30px;"></a>
+                      <a href="{% url 'post:detail' object.id %}?extore={{group.id}}" class="btn-comment" style="height:30px;"></a>
                       <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
                   </li>
                   <li class="like-count" style="font-size:15px; font-weight:bold;">
@@ -50,13 +50,13 @@
                       {% tags_for_object object as tags %}
                       {% if tags %}
                         {% for tag in tags %}
-                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}">#{{tag.name}}</a>
+                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}?extore={{group.id}}">#{{tag.name}}</a>
                       {% endfor %}
                       {% endif %}
                   </li>
               </ul>
               <div style="height:10px;"></div>
-              <a class="show-comments" style="color:grey" href="{% url 'post:detail' object.id %}">댓글 {{object.comments.count}}개 모두 보기</a>
+              <a class="show-comments" style="color:grey" href="{% url 'post:detail' object.id %}?extore={{group.id}}">댓글 {{object.comments.count}}개 모두 보기</a>
           </div>
         </div>
         <div style="height:20px"></div>

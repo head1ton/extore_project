@@ -22,7 +22,7 @@
             z-index: 1;
         }
         #content {
-            margin: 100px 50px 100px;
+            margin: 30px 50px 100px;
         }
         #footer {
             clear: both;
@@ -183,6 +183,30 @@
         .navbar-brand {
         font-family: 'Courier';
         }
+        div#navbarSupportedContent{z-index:9999;}
+
+        .navbar-nav.extore {
+            margin-top: -10px;
+            position: absolute;
+            left: 50%;
+            transform: translatex(-50%);
+        }
+        .navbar.navbar-expand-lg{
+            height: 40px;
+        }
+        .profile_img img{
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+        }
+        .card.text-center{
+            width: 200px;
+        }
+        .add_img{
+
+            float: left;
+        }
+
     </style>
     {% block extra_style %}
     {% endblock %}
@@ -194,33 +218,75 @@
     </script>
 </head>
 <body>
-    <div id="header">
+    <div class="main_logo">
+    <nav class="navbar navbar-light bg-transparent navbar-center">
+        <div class="main_center">
+            <a class="navbar-brand" href="{% url 'extore:extore_list' %}">
+                <img src="{% static 'images/main_icon.jpg' %}" width="70" height="70" class="d-inline-block align-top" alt="">
+                EXTORE
+            </a>
+        </div>
+    </nav>
+    </div>
 
-    </div>
-    <div id="extore-screen">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav extore mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'board:board_list' group_id %}">Free Talk <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'post:list' group_id %}">Post <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'post:last_memory' group_id %}">Last Memory <span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{% url 'schedule:schedule_list' group_id %}">Schedule <span class="sr-only">(current)</span></a>
-                    </li>
-                </ul>
+    <hr>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav extore mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
+          </li>
+            <li class="nav-item active">
+            <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+    {% load static %}
+    <div class="row mx-auto">
+        <div class="col">
+            <div class="container">
+                <div class="card" style="width: 12rem; height: 35rem;">
+                    <div class="card-body">
+                        <h6 class="text-center">{{group.title}}</h6>
+                        <hr>
+                        {% for member in group.member.all %}
+                            <div class="profile_img text-center" >
+                                <img src="{{member.profile.url}}" >
+                                <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
+                                <br>
+                                </div>
+                        {% endfor %}
+                            <div class="profile_img text-center" >
+                            <img src="{% static 'images/plus_icon.png' %}" >
+                                <div class="member_text text-center" style="font-size:15px;">Add</div>
+                                <br>
+                            </div>
+
+                        <div class="card-footer text-center text-muted">
+                                <h5>Extore List</h5><hr>
+                                {% for group in group_list %}
+                                    <div class="extore_list text-center">
+                                        {{group.title}}
+                                    </div>
+                                {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </nav>
+        </div>
     </div>
-    <div id="content">
-        {% block content %}
-        {% endblock %}
-    </div>
+
+    {% block content %}
+    {% endblock %}
+
     <div id="footer">
 
     </div>

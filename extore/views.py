@@ -3,15 +3,12 @@ from django.utils.text import slugify
 from django.shortcuts import render
 from .models import Group
 from .forms import GroupForm
-# Create your views here.
+
 
 def group_list(request):
-    if not (request.user.is_authenticated):
-        return render(request, 'extore/extore_index.html',{'group_list':None})
-    else:
-        # group_list = extore list
-        group_list = request.user.group_members.all()
-        return render(request, 'extore/extore_index.html', {'group_list': group_list})
+    # group_list = extore list
+    group_list = request.user.members_groups.all()
+    return render(request, 'extore/extore_index.html', {'group_list': group_list})
 
 
 def group_detail(request, group_id):
@@ -19,9 +16,9 @@ def group_detail(request, group_id):
         # group = the extore to see detail
         group = Group.objects.get(id=group_id)
         # group_list = extore list
-        group_list = request.user.group_members.all()
+        group_list = request.user.members_groups.all()
 
-        return render(request, 'extore/extore_detail.html',{'group':group, 'group_list':group_list})
+        return render(request, 'post-base.html',{'group':group, 'group_list':group_list})
 
 
 def group_delete(request, group_id):

@@ -10,7 +10,7 @@ class PostOption(admin.ModelAdmin):
     inlines = [CommentInline]
 
 class CommentOption(admin.ModelAdmin):
-    list_display = ['author', 'text']
+    list_display = ['id', 'author', 'text']
 
 admin.site.register(Post, PostOption)
 

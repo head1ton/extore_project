@@ -1,0 +1,149 @@
+{% extends 'post-base.html' %}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+   <div class="col"></div>
+   <div class="col-6">
+       <a href="{% url 'board:board_list' %}?extore={{group.id}}">게시물 목록 가기</a>
+       <br>
+       {{board.category}} {{board.text|safe}} {{board.author}}<br>
+       <hr>
+       <div class="card" style="width: 40rem; margin-top:-10px;">
+          <div>
+              <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
+              <div style="float:right; height:70px; line-height:70px;">
+                  <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+                      <form action="{% url 'board:comment_create' board.id %}" method="post" id="comment_form">
+                          {% csrf_token %}
+                          <input type="hidden" name="is_ajax" value="">
+                          <div class="row" style="width:590px; padding-right:10px;">
+                              <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+                              <div class="col">
+                                <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
+                              </div>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+          <div id="comment_list">
+            {% include 'board/comment_list.html' %}
+          </div>
+        </div>
+
+
+   </div>
+   <div class="col"></div>
+</div>
+
+
+<style>
+    div#navbarSupportedContent{z-index:9999;}
+
+    .navbar-nav.extore {
+        margin-top: -10px;
+        position: absolute;
+        left: 50%;
+        transform: translatex(-50%);
+    }
+    .navbar.navbar-expand-lg{
+        height: 40px;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra_script %}
+<script type="text/javascript">
+$(function () {
+    $("#comment_form").submit(function(e){
+        e.preventDefault();
+        $('input[name="is_ajax"]').val("1");
+        url = $(this).attr('action');
+        params = $(this).serialize(); // 현재 값들을 하나로 모은다.
+        $.ajax({
+            url: url,
+            method: "POST",
+            data: params,
+        }).done(function(data){
+            location.reload();
+        });
+    });
+
+    $(".btn-comment-like").click(function(e){
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href')
+        console.log(url);
+        $.ajax({
+            url:url,
+            method:"POST",
+            data:{
+                'csrfmiddlewaretoken':'{{csrf_token}}',
+                'is_ajax':true,
+            },
+        }).done(function(data){
+            if(data.works){
+                str_comment_like = selected_object.html().trim();
+                if(str_comment_like.match(/[0-9]+/g)==null){
+                    selected_object.html("&emsp;좋아요 1개")
+                }
+                else{
+                    int_comment_like = str_comment_like.match(/[0-9]+/g);
+                    comment_like = parseInt(int_comment_like[0]) + 1;
+                    selected_object.html("&emsp;좋아요 "+comment_like+"개")
+                }
+            }
+        });
+    });
+
+    $(".btn-comment-delete").click(function(e){
+        e.preventDefault();
+        var input = confirm('댓글을 삭제하시겠습니까?');
+        if (input==true){
+            selected_object = $(e.currentTarget);
+            url = selected_object.attr('href')+"?is_ajax=1";
+            console.log(url);
+            $.ajax({
+                url: url,
+
+            }).done(function(data){
+                if (data.works){
+                    selected_object.parents('.comment-single').remove();
+                }
+            });
+        }
+    });
+
+    $('.btn-comment-update').click(function(e) {
+        e.preventDefault();
+        selected_object = $(e.currentTarget);
+        url = selected_object.attr('href')+'?is_ajax=1';
+        comment = selected_object.siblings('p').children('.comment-text');
+        input = "<input type='text' class='update-text' value='"+comment.text()+"'>";
+        comment.html(input);
+        $('.update-text').keypress(function(e){
+            if (e.keyCode==13) {
+                text = $(this).val();
+                $.ajax({
+                    url:url,
+                    data:{
+                        text:text
+                    }
+                }).done(function(data) {
+                    if(data.works) {
+                        comment.text(text);
+                    }
+                });
+            }
+        });
+    });
+
+});
+
+</script>
+{% endblock %}

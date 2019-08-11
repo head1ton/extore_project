@@ -9,7 +9,7 @@ class CategoryAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 
 class BoardAdmin(admin.ModelAdmin):
-    list_display = ['id', 'category', 'created', 'updated', ]
+    list_display = ['id', 'category', 'title', 'created', 'updated', ]
     ordering = ['-created']
 
 admin.site.register(Board, BoardAdmin)

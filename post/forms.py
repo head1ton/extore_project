@@ -26,6 +26,7 @@ class PostForm(forms.ModelForm):
         self.fields['created'].widget.attrs = {'class':'form-control','placeholder':'ex) 2019-06-26'}
         
 
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment

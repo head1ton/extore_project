@@ -9,16 +9,6 @@ def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
 
-def convert_field_names(event_list):
-    """
-    Converts atribute names from Python code convention to the
-    attribute names used by FullCalendar
-    """
-    for event in event_list:
-        for key in event.keys():
-            event[snake_to_camel_case(key)] = event.pop(key)
-    return event_list
-
 
 def snake_to_camel_case(s):
     """
@@ -41,6 +31,17 @@ def snake_to_camel_case(s):
     leading_underscores = '_' * leading_count
     trailing_underscores = '_' * trailing_count
     return leading_underscores + new_string[0].lower() + new_string[1:] + trailing_underscores
+
+
+def convert_field_names(event_list):
+    """
+    Converts atribute names from Python code convention to the
+    attribute names used by FullCalendar
+    """
+    for event in event_list:
+        for key in event.keys():
+            event[snake_to_camel_case(key)] = event.pop(key)
+    return event_list
 
 
 def events_to_json(events_queryset):

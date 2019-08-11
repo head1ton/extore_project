@@ -1,41 +1,63 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
+from django.template.loader import render_to_string
 from django.utils.text import slugify
 from django.shortcuts import redirect, render,get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from .forms import BoardForm, CommentForm
-from .models import Board, Comment
+from .models import *
 
 
 
-def board_create(request, group_id):
+def board_create(request):
     if request.method == "POST":
         form = BoardForm(request.POST)
         form.instance.author_id = request.user.id
 
         if form.is_valid():
-            form.instance.group_id = group_id
             form.save()
 
             return redirect(reverse('board:board_list'))
     else:
-        form = BoardForm()
+        group_id = request.GET.get('extore', None)
+        if group_id:
+            form = BoardForm(extore_id=group_id)
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
+        else:
+            raise Http404
+
     
-    return render(request, 'board/board_create.html', {'form':form})
+    return render(request, 'board/board_create.html', {'form':form, 'group':group, 'group_list':group_list})
 
 
-def board_list(request, group_id):
+def board_list(request):
     if request.method == 'GET':
-        board_list = Board.objects.filter(group_id=group_id)
+        group_id = request.GET.get('extore', None)
+        if group_id:
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
+            board_list = Board.objects.filter(extore_id=group_id)
 
-        return render(request, 'board/board_list.html', {'board_list':board_list})
+        return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list})
+
+    raise Http404
 
 
 def board_detail(request, board_id):
     if request.method == 'GET':
         board = Board.objects.get(id=board_id)
+        group_id = request.GET.get('extore', None)
+        if group_id:
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
 
-        return render(request, 'board/board_detail.html', {'board':board})
+            comment_form = CommentForm()
+            comments = board.comments.all()
+
+            return render(request, 'board/board_detail.html', {'board':board, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list})
+
+    raise Http404
 
 
 def board_update(request, board_id):
@@ -51,6 +73,7 @@ def board_update(request, board_id):
             form.save()
             return JsonResponse({'updated':True})
 
+
 def board_delete(request, board_id):
     is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET \
         else (request.POST.get('is_ajax', False), request.POST)
@@ -63,20 +86,40 @@ def board_delete(request, board_id):
 
 
 def comment_create(request, board_id):
+    is_ajax = request.POST.get('is_ajax')
+    board = Board.objects.get(pk=board_id)
     comment_form = CommentForm(request.POST)
     comment_form.instance.nickname_id = request.user.id
     comment_form.instance.board_id = board_id
     if comment_form.is_valid():
-        comment_form.save()
+        comment = comment_form.save()
 
-    return redirect(reverse('board:board_detail', args=[board_id]))
+    if is_ajax:
+        html = render_to_string('board/comment_single.html', {'comment':comment, 'user':request.user})
+        return JsonResponse({'html':html})
+
+    return redirect(board)
 
 
 def comment_list(request, board_id):
     board = Board.objects.get(id=board_id)
-    comments = board.comment_board.all()
+    comments = board.comments.all()
 
     return render(request, 'board/comment_list', {'comments':comments})
+
+
+def comment_like(request, comment_id):
+    is_ajax = request.GET.get('is_ajax') if 'is_ajax' in request.GET else request.POST.get('is_ajax',False)
+    comment = Comment.objects.get(id=comment_id)
+    board = Board.objects.get(id=comment.board.id)
+    if is_ajax:
+        comment = Comment.objects.get(pk=comment_id)
+        comment.like = comment.like + 1
+        comment.save()
+
+        return JsonResponse({'works':True})
+    return redirect(board)
+
 
 def comment_update(request, comment_id):
     is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET \
@@ -87,19 +130,22 @@ def comment_update(request, comment_id):
 
     if request.user != comment.nickname:
         messages.warning(request, "권한 없음")
-        return redirect(reverse("board:board_detail", args=[board.id]))
+        return redirect(board)
 
     if is_ajax:
         form = CommentForm(data, instance=comment)
         if form.is_valid():
             form.save()
-            return JsonResponse({'updated':True})
+            return JsonResponse({'works':True})
+        else:
+            return JsonResponse({'works':False})
 
     if request.method == "POST":
         form = CommentForm(request.POST, instance=comment)
         if form.is_valid():
             form.save()
             return redirect(reverse("board:board_detail", args=[board.id]))
+
     else:
         form = CommentForm(instance=comment)
         return render(request, 'board/comment_update.html',{'form':form})
@@ -117,7 +163,7 @@ def comment_delete(request, comment_id):
 
     if is_ajax:
         comment.delete()
-        return JsonResponse({'deleted':True})
+        return JsonResponse({'works':True})
 
     if request.method == "POST":
         comment.delete()
