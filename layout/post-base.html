@@ -273,9 +273,9 @@
                         <hr>
                         <div style="display:inline-block;" class="text-center">
                             {% for member in group.member.all %}
-                                <div class="profile_img text-center" style="float:left; margin:4px;">
+                                <div class="profile_img text-center" style="float:left; margin:5px;">
                                     <img src="{{member.profile.url}}" >
-                                    <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
+                                    <div class="member_text text-center" style="font-size:14px;">{{member.last_name}}{{member.first_name}}</div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -299,7 +299,7 @@
                                       {% csrf_token %}
                                       <div class="row">
                                           <div class="col-10">
-                                              <input type="text" name="userSearch" class="form-control" placeholder="ex) 01086075857">
+                                              <input type="text" name="userSearch" class="form-control" placeholder="회원을 검색해주세요.">
                                           </div>
                                           <input type="submit" class="btn btn-outline-primary pull-right col-2" id="selectBtn" value="검색">
                                       </div>
@@ -315,7 +315,7 @@
                         </div>
 
                         <div class="card-footer text-center text-muted">
-                            <p style="font-size:14px;">활성화된 익스토어</p><hr>
+                            <p style="font-size:14px;margin-bottom:5px;">활성화된 익스토어</p><hr style="margin-top:10px;">
                             {% for group in group_list %}
                                 <div class="extore_list text-center">
                                     <a href="{% url 'extore:extore_detail' group.id %}">{{group.title}}</a>
@@ -346,23 +346,26 @@
                 e.preventDefault();
                 url = $(this).attr('action');
                 console.log(url);
-                userNumber = $('input[name=userSearch]').val();
-                console.log(userNumber);
+                userKeyword = $('input[name=userSearch]').val();
+
                 $.ajax({
                     url:url,
                     method:"POST",
                     data:{
                         'csrfmiddlewaretoken': '{{csrf_token}}',
-                        'userNumber' : userNumber,
+                        'userKeyword' : userKeyword,
                         'is_ajax' : true,
                     }
                 }).done(function(data){
                     if(data.isSearched){
+                        $('.userSearched').html("");
                         $('.userSearched').prepend(data.html);
+                        $(".searched-user").hover(function(){
+                            $(this).css('cursor', 'pointer');
+                        });
                         var state = true;
-
-                        $(".searched-user").on('click', function() {
-                            $('.searched-user').css("background-color", state ? 'blue' : 'white');
+                        $(".searched-user").on('click', function(e) {
+                            $(e.currentTarget).css("background-color", state ? 'blue' : 'white');
                             state = !state;
                         });
                     }
