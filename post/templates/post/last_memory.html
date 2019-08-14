@@ -111,7 +111,7 @@
             {% load calc %}
             {% ifequal object.created|return_year keys %}
                 <!--연도별 post 목록-->
-                <div class="card" onclick="location.href='{% url 'post:detail' object.id %}';" style="margin: 10px; width: 13rem; float:left; text-align:left;">
+                <div class="card" onclick="location.href='{% url 'post:detail' object.id %}?extore={{group.id}}';" style="margin: 10px; width: 13rem; float:left; text-align:left;">
                   <div class="show-post-image" style="background-image:url({{object.image.url}});"></div>
                   <div style="padding:12px 20px;">
                       <p class="card-text">{{object.text|truncatechars:9}} <span style="color:rgb(130,130,130); font-size:13px; float:right;">상세보기</span></span></p>

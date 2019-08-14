@@ -72,6 +72,17 @@
         .btn-upload-post:hover {
             text-decoration:none;
         }
+
+        .searched-user-img {
+            display:inline-block;
+            width:50px;
+            height:50px;
+            border-radius:25px;
+            background-size:cover;
+            background-repeat:no-repeat;
+            background-position:center center;
+            margin:10px 15px 10px 10px;
+        }
         .img-profile {
             float:left;
             display:inline-block;
@@ -91,6 +102,10 @@
             height: 68px;
             vertical-align: middle;
             line-height: normal;
+        }
+        .searchedUserList {
+
+
         }
         .btn-like {
             display:inline-block;
@@ -183,7 +198,7 @@
         .navbar-brand {
         font-family: 'Courier';
         }
-        div#navbarSupportedContent{z-index:9999;}
+        div#navbarSupportedContent{z-index:999;}
 
         .navbar-nav.extore {
             margin-top: -10px;
@@ -232,22 +247,21 @@
     <hr>
     <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav extore mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
-          </li>
-            <li class="nav-item active">
-            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
-          </li>
-            <li class="nav-item active">
-            <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
-          </li>
-            <li class="nav-item active">
-            <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
-          </li>
-
-        </ul>
-      </div>
+            <ul class="navbar-nav extore mr-auto">
+                <li class="nav-item active" style="margin:0, 50px;">
+                    <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
     </nav>
     {% load static %}
     <div class="row mx-auto">
@@ -257,26 +271,56 @@
                     <div class="card-body">
                         <h6 class="text-center">{{group.title}}</h6>
                         <hr>
-                        {% for member in group.member.all %}
-                            <div class="profile_img text-center" >
-                                <img src="{{member.profile.url}}" >
-                                <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
-                                <br>
+                        <div style="display:inline-block;" class="text-center">
+                            {% for member in group.member.all %}
+                                <div class="profile_img text-center" style="float:left; margin:4px;">
+                                    <img src="{{member.profile.url}}" >
+                                    <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
                                 </div>
-                        {% endfor %}
-                            <div class="profile_img text-center" >
-                            <img src="{% static 'images/plus_icon.png' %}" >
-                                <div class="member_text text-center" style="font-size:15px;">Add</div>
-                                <br>
+                            {% endfor %}
+                        </div>
+                        <div style="clear:left;"></div>
+                        <div class="profile_img text-center" style="cursor:pointer;margin:0 0 20px 0;" data-toggle="modal" data-target="#exampleModalScrollable">
+                            <img src="{% static 'images/plus_icon.png' %}" data-target="#exampleModalScrollable">
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-scrollable" role="document">
+                            <div class="modal-content" style="z-index:1000;">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalScrollableTitle">회원 초대</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                  <form action="{% url 'accounts:search' %}" class="userSearch container">
+                                      {% csrf_token %}
+                                      <div class="row">
+                                          <div class="col-10">
+                                              <input type="text" name="userSearch" class="form-control" placeholder="ex) 01086075857">
+                                          </div>
+                                          <input type="submit" class="btn btn-outline-primary pull-right col-2" id="selectBtn" value="검색">
+                                      </div>
+                                  </form>
+                                  <div class="userSearched"></div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">돌아가기</button>
+                                <button type="button" class="btn btn-primary">초대하기</button>
+                              </div>
                             </div>
+                          </div>
+                        </div>
 
                         <div class="card-footer text-center text-muted">
-                                <h5>Extore List</h5><hr>
-                                {% for group in group_list %}
-                                    <div class="extore_list text-center">
-                                        {{group.title}}
-                                    </div>
-                                {% endfor %}
+                            <p style="font-size:14px;">활성화된 익스토어</p><hr>
+                            {% for group in group_list %}
+                                <div class="extore_list text-center">
+                                    <a href="{% url 'extore:extore_detail' group.id %}">{{group.title}}</a>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -295,7 +339,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+
+    <script>
+        $(function(){
+            $('.userSearch').submit(function(e){
+                e.preventDefault();
+                url = $(this).attr('action');
+                console.log(url);
+                userNumber = $('input[name=userSearch]').val();
+                console.log(userNumber);
+                $.ajax({
+                    url:url,
+                    method:"POST",
+                    data:{
+                        'csrfmiddlewaretoken': '{{csrf_token}}',
+                        'userNumber' : userNumber,
+                        'is_ajax' : true,
+                    }
+                }).done(function(data){
+                    if(data.isSearched){
+                        $('.userSearched').prepend(data.html);
+                        var state = true;
+
+                        $(".searched-user").on('click', function() {
+                            $('.searched-user').css("background-color", state ? 'blue' : 'white');
+                            state = !state;
+                        });
+                    }
+                });
+            });
+
+
+
+        });
+    </script>
     {% block extra_script %}
+
     {% endblock %}
 </body>
 </html>

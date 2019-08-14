@@ -5,7 +5,7 @@
 {% block content %}
 <div>
 	<div style="width:800px; margin:0 auto; text-align:right;">
-		<a href="{% url 'schedule:list' %}?extore={{group.id}}" class="btn btn-outline-primary" style="margin-right:10px;">일정 관리</a>
+		<a href="{% url 'schedule:list' group.id %}" class="btn btn-outline-primary" style="margin-right:10px;">일정 관리</a>
 		<a href="{% url 'schedule:create' %}?extore={{group.id}}" class="btn btn-primary">할일 작성</a>
 	</div>
 	<div style="height:800px; line-height:800px; width:800px; margin:0 auto;">

@@ -5,24 +5,33 @@ from django.urls import reverse_lazy
 from django.template.loader import render_to_string
 from .models import *
 from .forms import *
-# Create your views here.
+from accounts.models import User
 
 
 def post_create(request):
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
+        group_id = request.POST.get('group_id', None)
         form.instance.author_id = request.user.id
+        form.instance.extore_id = group_id
         if form.is_valid():
-            post = form.save()
-            print(post)
-            return redirect(reverse('post:list'))
+            form.save()
+
+            posts = Post.objects.filter(extore_id=group_id)
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
+            users = User.objects.all()
+            return render(request, 'post/post_list.html', {'object_list':posts, 'group':group, 'group_list':group_list, 'users':users})
     else:
         group_id = request.GET.get('extore', None)
         if group_id:
-            form = PostForm(extore_id=group_id)
-        else:
-            raise Http404
-        return render(request, 'post/post_create.html', {'form':form})
+            form = PostForm()
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
+            users = User.objects.all()
+            return render(request, 'post/post_create.html', {'form':form, 'group':group, 'group_list':group_list, 'users':users})
+        raise Http404
+
 
 
 def post_list(request):
@@ -32,7 +41,8 @@ def post_list(request):
             posts = Post.objects.filter(extore_id=group_id)
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
-            return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, 'group_list':group_list})
+            users = User.objects.all()
+            return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, 'group_list':group_list, 'users':users})
 
     raise Http404
 
@@ -47,37 +57,63 @@ def post_detail(request, post_id):
 
             comment_form = CommentForm()
             comments = post.comments.all()
+            users = User.objects.all()
 
-    return render(request, 'post/post_detail.html', {'object':post, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list})
-
+            return render(request, 'post/post_detail.html', {'object':post, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list, 'users':users})
+    raise Http404
 
 def post_delete(request, post_id):
     post = Post.objects.get(pk=post_id)
     # 로그인한 유저가 작성자일 경우, 해당 포스트 삭제 버튼 보이도록
     # ajax post요청일 경우, detail 페이지로 이동
     if request.method == "POST":
-        if post.author != request.user or request.user:
+        group_id = request.POST.get('group_id', None)
+        group = Group.objects.get(id=group_id)
+        group_list = request.user.members_groups.all()
+        comment_form = CommentForm()
+        comments = post.comments.all()
+        users = User.objects.all()
+        if post.author != request.user and not request.user.is_staff:
             messages.warning(request, '삭제할 권한이 없습니다.')
-            return redirect(reverse_lazy('post:detail', args=[post.id]))
+            return render(request, 'post/post_detail.html', {'object':post, 'comments':comments, \
+            'comment_form':comment_form, 'group':group, 'group_list':group_list, 'users':users})
+
     # ajax 요청이 아닌경우, delete 페이지로 이동
-    return render(request, 'post/post_delete.html')
+    group_id = request.GET.get('group_id', None)
+    group = Group.objects.get(id=group_id)
+    group_list = request.user.members_groups.all()
+    users = User.objects.all()
+    return render(request, 'post/post_delete.html', {'group':group, 'group_list':group_list, 'users':users})
 
 def post_update(request, post_id):
     if request.method == "POST":
         post = Post.objects.get(pk=post_id)
         form = PostForm(request.POST, request.FILES, instance=post)
+        group_id = request.POST.get('group_id', None)
+        group = Group.objects.get(id=group_id)
+        group_list = request.user.members_groups.all()
+        comment_form = CommentForm()
+        comments = post.comments.all()
+        users = User.objects.all()
         if form.is_valid():
             post = form.save()
-            return redirect(post)
+            return render(request, 'post/post_detail.html', {'object': post, 'comments': comments, \
+            'comment_form': comment_form, 'group': group, 'group_list': group_list, 'users':users})
+
     else:
         post = Post.objects.get(pk=post_id)
         form = PostForm(instance=post)
-    return render(request, 'post/post_update.html', {'form':form})
+        group_id = request.GET.get('extore', None)
+        group = Group.objects.get(id=group_id)
+        group_list = request.user.members_groups.all()
+        users = User.objects.all()
+    return render(request, 'post/post_update.html', {'form':form, 'group':group, 'group_list':group_list, 'users':users})
+
 
 # 태그 기능 관련
 from tagging.views import TaggedObjectList
-from django.contrib.contenttypes.models import ContentType
-
+from tagging.models import TaggedItem
+from django.core.exceptions import ImproperlyConfigured
 
 class PostTaggedObjectList(TaggedObjectList):
     model = Post
@@ -89,9 +125,11 @@ class PostTaggedObjectList(TaggedObjectList):
         group_id = self.request.GET.get('extore', None)
         group = Group.objects.get(id=group_id)
         group_list = self.request.user.members_groups.all()
+        users = User.objects.all()
 
         context_data['group'] =  group
         context_data['group_list'] = group_list
+        context_data['users'] = users
 
         return context_data
 
@@ -100,7 +138,11 @@ class PostTaggedObjectList(TaggedObjectList):
         group_id = self.request.GET.get('extore', None)
         posts = Post.objects.filter(extore_id=group_id)
 
-        return posts
+        self.queryset_or_model = posts
+        self.tag_instance = self.get_tag()
+        return TaggedItem.objects.get_by_model(
+            self.queryset_or_model, self.tag_instance)
+
 
 # from django.views.generic import TemplateView
 # class TagList(TemplateView):
@@ -185,15 +227,17 @@ def last_memory(request):
 
         group = Group.objects.get(id=group_id)
         group_list = request.user.members_groups.all()
+        users = User.objects.all()
+
         posts_year_dict = reduce(lambda dict, ch: dict.update({ch:dict.get(ch,0)+1}) or dict, posts_year_li, {})
-        return render(request, 'post/last_memory.html', {'object_dict':posts_year_dict, 'object_list':posts, 'group':group, 'group-list':group_list})
+        return render(request, 'post/last_memory.html', {'object_dict':posts_year_dict, 'object_list':posts, 'group':group, 'group_list':group_list, 'users':users})
 
 
-def show_comments(request, post_id):
-    post = Post.objects.get(pk=post_id)
-    comment_form = CommentForm()
-    comments = post.comments.all()
-    return render(request, 'post/comments_list.html', {'object':post, 'comments':comments, 'comment_form':comment_form})
+# def show_comments(request, post_id):
+#     post = Post.objects.get(pk=post_id)
+#     comment_form = CommentForm()
+#     comments = post.comments.all()
+#     return render(request, 'post/comments_list.html', {'object':post, 'comments':comments, 'comment_form':comment_form})
 
 
 def comment_like(request, comment_id):

@@ -3,7 +3,7 @@ from django.utils.text import slugify
 from django.shortcuts import render
 from .models import Group
 from .forms import GroupForm
-
+from post.models import Post
 
 def group_list(request):
     # group_list = extore list
@@ -17,8 +17,9 @@ def group_detail(request, group_id):
         group = Group.objects.get(id=group_id)
         # group_list = extore list
         group_list = request.user.members_groups.all()
+        posts = Post.objects.filter(extore_id=group_id)
 
-        return render(request, 'post-base.html',{'group':group, 'group_list':group_list})
+        return render(request, 'post/post_list.html',{'object_list':posts, 'group':group, 'group_list':group_list})
 
 
 def group_delete(request, group_id):

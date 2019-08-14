@@ -60,6 +60,7 @@ def calendar_options(event_url, options):
     the calendar events. options is a JSON string with all the other options.
     """
     event_url_option = 'events: "%s"' % (event_url,)
+
     s = options.strip()
     if s is not None and '{' in s:
         pos = s.index('{') + 1

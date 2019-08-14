@@ -4,7 +4,7 @@ from .models import *
 class BoardForm(forms.ModelForm):
     class Meta:
         model = Board
-        fields = ['extore', 'category', 'text']
+        fields = ['category', 'title', 'text']
 
 class CommentForm(forms.ModelForm):
     class Meta:

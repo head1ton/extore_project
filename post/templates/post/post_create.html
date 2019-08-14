@@ -5,11 +5,12 @@
 {% block content %}
 
 <form action="" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="group_id" value="{{group.id}}">
     {% csrf_token %}
     {{form.media}}
     {{form.as_p}}
     <div style="float:right;">
-        <a href="{% url 'post:list' %}" class="btn btn-outline-primary" style="margin-right:10px;">목록</a>
+        <a href="{% url 'post:list' %}?extore={{group.id}}" class="btn btn-outline-primary" style="margin-right:10px;">목록</a>
         <input type="submit" class="btn btn-primary" value="공유하기">
     </div>
 </form>

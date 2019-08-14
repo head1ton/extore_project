@@ -236,16 +236,16 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav extore mr-auto">
+          <li class="nav-item active" style="margin:0, 50px;">
+            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
+          </li>
           <li class="nav-item active">
             <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
           </li>
-            <li class="nav-item active">
-            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
-          </li>
-            <li class="nav-item active">
+          <li class="nav-item active">
             <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
           </li>
-            <li class="nav-item active">
+          <li class="nav-item active">
             <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
           </li>
 
@@ -260,33 +260,32 @@
                     <div class="card-body">
                         <h6 class="text-center">{{group.title}}</h6>
                         <hr>
-                        {% for member in group.member.all %}
-                            <div class="profile_img text-center" >
-                                <img src="{{member.profile.url}}" >
-                                <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
-                                <br>
+                        <div style="display:inline-block;" class="text-center">
+                            {% for member in group.member.all %}
+                                <div class="profile_img text-center" style="float:left; margin:4px;">
+                                    <img src="{{member.profile.url}}" >
+                                    <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
                                 </div>
-                        {% endfor %}
-                            <div class="profile_img text-center" >
-                            <img src="{% static 'images/plus_icon.png' %}" >
-                                <div class="member_text text-center" style="font-size:15px;">Add</div>
-                                <br>
-                            </div>
+                            {% endfor %}
+                        </div>
+                        <div style="clear:left;"></div>
+                        <div class="profile_img text-center" style="margin:0 0 20px 0;">
+                            <a href="#"><img src="{% static 'images/plus_icon.png' %}" ></a>
+                        </div>
 
                         <div class="card-footer text-center text-muted">
-                                <h5>Extore List</h5><hr>
-                                {% for group in group_list %}
-                                    <div class="extore_list text-center">
-                                        {{group.title}}
-                                    </div>
-                                {% endfor %}
+                            <p style="font-size:14px;">활성화된 익스토어</p><hr>
+                            {% for group in group_list %}
+                                <div class="extore_list text-center">
+                                    <a href="{% url 'extore:extore_detail' group.id %}">{{group.title}}</a>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!--[if lt IE 7]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->

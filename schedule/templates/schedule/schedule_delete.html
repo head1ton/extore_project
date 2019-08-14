@@ -10,7 +10,7 @@
     <form action="" method="post">
         <input type="hidden" name="group_id" value="{{group.id}}">
         {% csrf_token %}
-        <a href="{% url 'schedule:list' %}?extore={{group.id}}" class="btn btn-outline-primary" style="margin-right:10px;">목록</a>
+        <a href="{% url 'schedule:list' group.id %}" class="btn btn-outline-primary" style="margin-right:10px;">목록</a>
         <input type="submit" class="btn btn-primary" value="Delete">
     </form>
 

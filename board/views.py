@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.contrib import messages
 from .forms import BoardForm, CommentForm
 from .models import *
+from accounts.models import User
 
 
 
@@ -13,22 +14,28 @@ def board_create(request):
     if request.method == "POST":
         form = BoardForm(request.POST)
         form.instance.author_id = request.user.id
-
+        group_id = request.POST.get('group_id', None)
+        form.instance.extore_id = group_id
+        group = Group.objects.get(pk=group_id)
+        group_list = request.user.members_groups.all()
+        board_list = Board.objects.filter(extore_id=group_id)
+        users = User.objects.all()
         if form.is_valid():
             form.save()
-
-            return redirect(reverse('board:board_list'))
+            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'user':users})
+        raise Http404
+    # 게시물 작성 화면 이동 시,
     else:
         group_id = request.GET.get('extore', None)
         if group_id:
-            form = BoardForm(extore_id=group_id)
+            form = BoardForm()
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
-        else:
-            raise Http404
+            users = User.objects.all()
+            return render(request, 'board/board_create.html', {'form': form, 'group': group, 'group_list': group_list, 'user': users})
+        raise Http404
 
-    
-    return render(request, 'board/board_create.html', {'form':form, 'group':group, 'group_list':group_list})
+
 
 
 def board_list(request):
@@ -38,9 +45,8 @@ def board_list(request):
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
             board_list = Board.objects.filter(extore_id=group_id)
-
-        return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list})
-
+            users = User.objects.all()
+            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'users':users})
     raise Http404
 
 
@@ -54,8 +60,8 @@ def board_detail(request, board_id):
 
             comment_form = CommentForm()
             comments = board.comments.all()
-
-            return render(request, 'board/board_detail.html', {'board':board, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list})
+            users = User.objects.all()
+            return render(request, 'board/board_detail.html', {'board':board, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list, 'users':users})
 
     raise Http404
 
