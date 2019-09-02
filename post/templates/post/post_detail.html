@@ -149,6 +149,7 @@ $(function () {
             data: params,
         }).done(function(data){
             location.reload();
+            $('input[name="is_ajax"]').val("");
         });
     });
 

@@ -18,11 +18,16 @@ def board_create(request):
         form.instance.extore_id = group_id
         group = Group.objects.get(pk=group_id)
         group_list = request.user.members_groups.all()
-        board_list = Board.objects.filter(extore_id=group_id)
+
         users = User.objects.all()
         if form.is_valid():
             form.save()
-            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'user':users})
+            board_list = Board.objects.filter(extore_id=group_id)
+            num_in_turn = []
+            for i in range(len(board_list)):
+                num_in_turn.append(i+1)
+                num_in_turn.sort(reverse=True)
+            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'user':users, 'num_in_turn':num_in_turn})
         raise Http404
     # 게시물 작성 화면 이동 시,
     else:
@@ -46,7 +51,11 @@ def board_list(request):
             group_list = request.user.members_groups.all()
             board_list = Board.objects.filter(extore_id=group_id)
             users = User.objects.all()
-            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'users':users})
+            num_in_turn = []
+            for i in range(len(board_list)):
+                num_in_turn.append(i+1)
+                num_in_turn.sort(reverse=True)
+            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'users':users, 'num_in_turn':num_in_turn})
     raise Http404
 
 
@@ -67,17 +76,14 @@ def board_detail(request, board_id):
 
 
 def board_update(request, board_id):
-    is_ajax, data = (request.GET.get('is_ajax'), request.GET) if 'is_ajax' in request.GET \
-        else (request.POST.get('is_ajax', False), request.POST)
-
-    board = Board.objects.get(id=board_id)
-
-    if is_ajax:
+    if request.is_ajax():
+        board = Board.objects.get(id=board_id)
+        data = request.POST.get('text')
         form = BoardForm(data, instance=board)
         form.instance.author_id = request.user.id
         if form.is_valid():
             form.save()
-            return JsonResponse({'updated':True})
+            return JsonResponse({'works':True})
 
 
 def board_delete(request, board_id):

@@ -10,7 +10,16 @@
    <div class="col-6">
        <a href="{% url 'board:board_list' %}?extore={{group.id}}">게시물 목록 가기</a>
        <br>
-       {{board.category}} {{board.text|safe}} {{board.author}}<br>
+
+       <div class="board-category">{{board.category}}</div>
+       <div class="board-author">{{board.author}}</div>
+       <div class="board-contents">{{board.text|safe}}</div>
+
+       {% ifequal board.author user %}
+       <a class="board-update" href="{% url 'board:board_update' board.id %}" style="margin-right:5px;">수정</a>
+       <a class="board-delete" href="{% url 'board:board_delete' board.id %}">삭제</a>
+       <div class="after-click-update"></div>
+       {% endifequal %}
        <hr>
        <div class="card" style="width: 40rem; margin-top:-10px;">
           <div>
@@ -140,6 +149,48 @@ $(function () {
                     }
                 });
             }
+        });
+    });
+    $('.board-update').click(function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var contents = $(this).siblings('.board-contents');
+        var input = "<input type='textarea' class='contents-to-update' value='"+contents.text()+"'>";
+        contents.html(input);
+
+
+
+        $("<a class='board-update-save' href='#' style='margin-right:5px;'>저장</a> \
+            <a class='board-update-cancel' href='#'>취소</a>").appendTo('.after-click-update')
+
+        $('.board-update').hide();
+        $('.board-delete').hide();
+
+        $('.board-update-save').click(function(e){
+            e.preventDefault();
+            console.log(url);
+            text = $('.contents-to-update').val();
+            console.log(text);
+            $.ajax({
+                url:url,
+                method: 'POST',
+                data:{
+                    'text':text,
+                    'csrfmiddlewaretoken': '{{csrf_token}}',
+                }
+            }).done(function(data) {
+                if(data.works) {
+                    contents.text(text);
+                    $('.board-update').show();
+                    $('.board-delete').show();
+                    $('.board-update-save').hide();
+                    $('.board-update-cancel').hide();
+                }
+            });
+        });
+        $('.board-update-cancel').click(function() {
+            e.preventDefault();
+            location.reload();
         });
     });
 

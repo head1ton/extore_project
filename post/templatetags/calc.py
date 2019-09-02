@@ -2,6 +2,7 @@ from django import template
 
 from datetime import datetime, date, timedelta
 
+from django.db.models import Q
 
 register = template.Library()
 
@@ -26,8 +27,21 @@ def time_since(value):
     else:
         return '지금'
 
+
 @register.filter
 def return_year(value):
     return value.strftime("%Y")
 
 
+@register.filter
+def same_invitation_time_since(inviteStatus, inviteDates):
+    invite_date = inviteDates.filter(group_id=inviteStatus.group.id)
+    if invite_date.exists() :
+        return time_since(invite_date[0].created)
+    else:
+        return None
+
+
+@register.filter
+def list_index(list, forloop):
+    return list[forloop]

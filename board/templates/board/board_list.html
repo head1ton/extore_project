@@ -22,7 +22,7 @@
                     {% load calc %}
                     {% for board in board_list %}
                     <tr>
-                        <th scope="row"><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.id}}</a></th>
+                        <th scope="row"><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{num_in_turn|list_index:forloop.counter0}}</a></th>
                         <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.title}}</a></td>
                         <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.author.last_name}}{{board.author.first_name}}</a></td>
                         <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.created|date:"Y-m-d D"}}</a></td>
@@ -35,19 +35,5 @@
     </div>
 </div>
 
-
-<style>
-    div#navbarSupportedContent{z-index:9999;}
-
-    .navbar-nav.extore {
-        margin-top: -10px;
-        position: absolute;
-        left: 50%;
-        transform: translatex(-50%);
-    }
-    .navbar.navbar-expand-lg{
-        height: 40px;
-    }
-</style>
 
 {% endblock %}

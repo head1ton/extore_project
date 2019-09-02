@@ -26,19 +26,8 @@
         padding: 0;
         height: 100%;
     }
-    # header {
-        position: relative;
-        height: 100px;
-        z-index: 1;
-    }
     #content {
         margin: 30px 50px 100px;
-    }
-    #footer {
-        clear: both;
-        position: relative;
-        height: 100px;
-        z-index: 1;
     }
     .a-tag {
         color: black;
@@ -82,6 +71,18 @@
     .btn-upload-post:hover {
         text-decoration:none;
     }
+
+    .searched-user-img {
+        display:inline-block;
+        width:50px;
+        height:50px;
+        border-radius:25px;
+        background-size:cover;
+        background-repeat:no-repeat;
+        background-position:center center;
+        margin:10px 15px 10px 10px;
+    }
+
     .img-profile {
         float:left;
         display:inline-block;
@@ -109,11 +110,9 @@
         background-image:url({% static 'images/vacant-like.png' %});
         background-repeat:no-repeat;
         background-size:cover;
-
     }
     .btn-like.activate {
         background-image:url({% static 'images/filled-like.png' %});
-
     }
     .btn-comment {
         display:inline-block;
@@ -142,7 +141,7 @@
         color:rgb(37,71,194);
      }
 
-     .btn-comment-delete:hover {
+    .btn-comment-delete:hover {
         text-decoration:none;
         color:rgb(37,71,194);
     }
@@ -180,21 +179,41 @@
         text-align:left;
 
     }
-    .main_logo .navbar{
-        height: 160px;
-        margin-top: -50px;
+    .header .navbar{
+        height: 120px;
+        margin-top: -40px;
+
     }
-    .main_center a{
+    .main_right {
+        position:relative;
+        top:55px;
+        float:left;
+        width: 180px;
+        margin-right:100px;
+        text-align: right;
+    }
+    .main_right ul {
+        list-style-type: None;
+    }
+    .main_right a{
+        color: black;
+    }
+    .main_right a:hover {
+        text-decoration: None,
+
+    }
+    .main_left a{
         position: absolute;
-        left: 50%;
-        transform: translatex(-50%);
-        font-size: 50px;
+        left: 20px;
+        font-size: 30px;
+
     }
     .navbar-brand {
-    font-family: 'Courier';
+        font-family: 'Courier';
     }
-    div#navbarSupportedContent{z-index:9999;}
-
+    div#navbarSupportedContent{
+        z-index:100;
+    }
     .navbar-nav.extore {
         margin-top: -10px;
         position: absolute;
@@ -204,10 +223,26 @@
     .navbar.navbar-expand-lg{
         height: 40px;
     }
-    .profile_img img{
+    .profile-img {
+        float:left;
+        margin:5px;
+    }
+    .profile-img img{
         height: 30px;
         width: 30px;
         border-radius: 50%;
+    }
+    .plus-icon {
+        height: 30px;
+        width: 30px;
+        float:left;
+        cursor:pointer;
+        padding-top: 10px;
+        margin: 0 5px 0 5px;
+    }
+    .plus-icon img {
+        height: 30px;
+        width: 30px;
     }
     .card.text-center{
         width: 200px;
@@ -216,41 +251,137 @@
 
         float: left;
     }
+    .main-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+
     </style>
     {% block extra_style %}
     {% endblock %}
 </head>
 <body>
-    {% load static %}
-    <div class="main_logo">
+   <!-- header -->
+    <div class="header">
         <nav class="navbar navbar-light bg-transparent navbar-center">
-            <div class="main_center">
+            <div class="main_left">
                 <a class="navbar-brand" href="{% url 'extore:extore_list' %}">
-                    <img src="{% static 'images/main_icon.jpg' %}" width="70" height="70" class="d-inline-block align-top" alt="">
-                    EXTORE
+                    <img src="{% static 'images/main_icon.jpg' %}" width="50" height="50" class="main-icon" alt="">
+                EXTORE
                 </a>
+            </div>
+            <div class="main_right">
+                <ul>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'accounts:logout' %}" class="user-logout">로그아웃</a></li>
+                    {% else %}
+                        <li style="float:left;"><a href="#" data-toggle="modal" data-target="#loginModal" data-whatever="@getbootstrap">로그인</a></li>
+                        <li><a href="#" data-toggle="modal" data-target="#signupModal" data-whatever="@getbootstrap" >회원가입</a></li>
+                    {% endif %}
+                </ul>
             </div>
         </nav>
     </div>
+
+    <!--회원가입 modal-->
+    <div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="signupModalLabel">회원가입</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true" class="btn-close">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="user-signup" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="signup-user-email" class="col-form-label">이메일 주소</label>
+                <input type="text" placeholder="ex. adc@abc.com" class="form-control" id="signup-user-email" name="email">
+              </div>
+              <div class="form-group">
+                <label for="signup-user-name" class="col-form-label">이름</label>
+                <input type="text" placeholder="ex. 홍길동" class="form-control" id="signup-user-name" name="realName">
+              </div>
+              <div class="form-group">
+                <label for="signup-user-profile" class="col-form-label">프로필 사진</label><br>
+                <input type="file" id="signup-user-profile" name="profile">
+              </div>
+              <div class="form-group">
+                <label for="signup-user-phonenumber" class="col-form-label">휴대폰 번호</label>
+                <input type="text" placeholder="ex. 01012345678" class="form-control" id="signup-user-phonenumber" name="phoneNumber">
+              </div>
+              <div class="form-group">
+                <label for="signup-user-password" class="col-form-label">비밀번호</label>
+                <input type="text" placeholder="8자리 이상 (영어 대문자, 소문자, 숫자, 특수문자 중 3종류 조합)" class="form-control" id="signup-user-password" name="password">
+              </div>
+              <div class="form-group">
+                <label for="signup-user-phonenumber" class="col-form-label">비밀번호 확인</label>
+                <input type="text" placeholder="비밀번호 재입력" class="form-control" id="signup-user-password2" name="password2">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-close btn btn-secondary" data-dismiss="modal">돌아가기</button>
+            <a type="button" href="{% url 'accounts:signup' %}" class="btn-signup btn btn-primary">가입하기</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!--로그인 modal-->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">로그인</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span class="btn-close" aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="user-login" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="login-user-email" class="col-form-label">이메일 주소</label>
+                <input type="text" placeholder="이메일 주소 입력" class="form-control" id="login-user-email" name="email">
+              </div>
+              <div class="form-group">
+                <label for="login-user-password" class="col-form-label">비밀번호</label>
+                <input type="text" placeholder="비밀번호 입력" class="form-control" id="login-user-password" name="password">
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-close btn btn-secondary" data-dismiss="modal">돌아가기</button>
+            <a type="button" href="{% url 'accounts:login' %}" class="btn-login btn btn-primary">로그인하기</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <hr>
     <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav extore mr-auto">
-          <li class="nav-item active" style="margin:0, 50px;">
-            <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
-          </li>
-
-        </ul>
-      </div>
+            <ul class="navbar-nav extore mr-auto">
+                <li class="nav-item active" style="margin:0, 50px;">
+                    <a class="nav-link" href="{% url 'post:list' %}?extore={{group.id}}">Post <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'board:board_list' %}?extore={{group.id}}">Free Talk <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'post:last_memory' %}?extore={{group.id}}">Last Memory <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'schedule:index' %}?extore={{group.id}}">Schedule <span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
     </nav>
     {% load static %}
     <div class="row mx-auto">
@@ -258,29 +389,63 @@
             <div class="container">
                 <div class="card" style="width: 12rem; height: 35rem;">
                     <div class="card-body">
-                        <h6 class="text-center">{{group.title}}</h6>
+                        <h6 class="extore-title text-center">{{group.title}}</h6>
                         <hr>
-                        <div style="display:inline-block;" class="text-center">
+                        <div style="display:inline-block; float:left;" class="text-center">
                             {% for member in group.member.all %}
-                                <div class="profile_img text-center" style="float:left; margin:4px;">
+                                <div class="profile-img text-center">
                                     <img src="{{member.profile.url}}" >
-                                    <div class="member_text text-center" style="font-size:15px;">{{member.last_name}}{{member.first_name}}</div>
+                                    <div style="font-size:14px;">{{member.last_name}}{{member.first_name}}</div>
                                 </div>
                             {% endfor %}
+                            <div class="plus-icon text-center" data-toggle="modal" data-target="#exampleModalScrollable">
+                                <img src="{% static 'images/plus_icon.png' %}">
+                            </div>
                         </div>
-                        <div style="clear:left;"></div>
-                        <div class="profile_img text-center" style="margin:0 0 20px 0;">
-                            <a href="#"><img src="{% static 'images/plus_icon.png' %}" ></a>
+
+                        <div style="clear:left; margin-bottom:30px;"></div>
+
+                       <!-- Modal -->
+                        <div class="modal fade bd-example-modal-lg" id="exampleModalScrollable" tabindex="-1" role="dialog" aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+                            <div class="modal-content" style="z-index:1000;">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalScrollableTitle">회원 초대</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                  <form action="{% url 'accounts:search' %}" class="userSearch container">
+                                      {% csrf_token %}
+                                      <div class="row">
+                                          <div class="col-10">
+                                              <input type="text" name="userSearch" class="form-control" placeholder="회원을 검색해주세요.">
+                                          </div>
+                                          <input type="submit" class="btn btn-outline-primary pull-right col-2" id="selectBtn" value="검색">
+                                      </div>
+                                  </form>
+                                  <div class="userSearched"></div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-back" data-dismiss="modal">돌아가기</button>
+                                <a href="{% url 'accounts:invite' %}" type="button" class="btn btn-primary btn-invite">초대하기</a>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         <div class="card-footer text-center text-muted">
-                            <p style="font-size:14px;">활성화된 익스토어</p><hr>
-                            {% for group in group_list %}
-                                <div class="extore_list text-center">
-                                    <a href="{% url 'extore:extore_detail' group.id %}">{{group.title}}</a>
-                                </div>
-                            {% endfor %}
+                            <p style="font-size:14px;margin-bottom:5px;">활성화된 익스토어</p><hr style="margin-top:10px;">
+                            <div class="extore_list">
+                                {% for group in group_list %}
+                                    <p style="margin:0;"><a href="{% url 'extore:extore_detail' group.id %}">{{group.title}}</a></p>
+                                {% endfor %}
+                            </div>
                         </div>
+                        <p style="color:grey; margin:5px 0 0 0; text-align:right;">
+                            <a href="{% url 'extore:extore_delete' group.id %}" class="leaveExtore">탈퇴하기</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -294,13 +459,274 @@
     {% block content %}
     {% endblock %}
 
-    <div id="footer">
+    <div class="footer">
 
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script>
+    $(function(){
+        var state;
+        var user_number_list;
+        var user_name_list;
+        var extore_title;
+        var url;
+        var phoneNumber;
+        var userName;
+
+        $('.btn-invite').click(function(e){
+            e.preventDefault();
+        });
+
+        $('.userSearch').submit(function(e){
+            e.preventDefault();
+            url = $(this).attr('action');
+            console.log(url);
+            userKeyword = $('input[name=userSearch]').val();
+
+            $.ajax({
+                url:url,
+                method:"POST",
+                data:{
+                    'csrfmiddlewaretoken': '{{csrf_token}}',
+                    'userKeyword': userKeyword,
+                    'is_ajax': true,
+                },
+                success: function(data){
+                    callbackFirst(data);
+                }
+            });
+        });
+
+        $(".btn-invite").on('click', function(e) {
+            e.preventDefault();
+            user_number_list = new Array();
+            user_name_list = new Array();
+            extore_title = $('.extore-title').text();
+            url = $('.btn-invite').attr('href');
+
+            jQuery.ajaxSettings.traditional = true;
+            $('.searched-user').each(function(){
+                if ($(this).data('check') == true){
+                    phoneNumber = $('td:nth-child(4)', this).text();
+                    userName = $('td:nth-child(2)', this).text();
+                    user_number_list.push(phoneNumber);
+                    user_name_list.push(userName);
+                }
+            });
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    'csrfmiddlewaretoken':'{{csrf_token}}',
+                    'user_number_list[]': user_number_list,
+                    'extore_title': extore_title,
+                    'is_ajax': true,
+                },
+                success: function(data){
+                    callbackSecond(data);
+                }
+            });
+        });
+
+        function callbackFirst(data){
+            $('.btn-back').click(function(e){
+                    $('.userSearched').html("");
+                    $('.form-control').val("");
+            });
+            $('.close').click(function(e){
+                $('.userSearched').html("");
+                $('.form-control').val("");
+            });
+            if(data.noKeyword){
+                alert('회원의 이름, 연락처, 닉네임 중 하나를 선택하여 입력해주세요.');
+            }
+            if(data.isSearched){
+                $('.userSearched').html("");
+                $('.userSearched').prepend(data.html);
+                $(".searched-user").hover(function(){
+                    $(this).css('cursor', 'pointer');
+                });
+            }
+            state = true;
+            $(".searched-user").on('click', function(e) {
+                $(e.currentTarget).css("background-color", state ? 'blue' : 'white');
+                $(e.currentTarget).data('check', state);
+                state = !state;
+            });
+        }
+
+        function callbackSecond(data){
+            if(data.notSelect){
+                alert('초대할 회원을 선택해주세요.')
+            }
+            if(data.already_exists){
+                console.log(data.already_exists);
+                alert("'"+data.already_exists+"'"+'님은 이미 '+"'"+extore_title+"'"+'에 초대되어 있습니다.\n초대되지 않은 회원을 초대해주세요.');
+            }
+            if(data.already_requested){
+                alert("'"+data.already_requested+"'"+'님에게 이미 초대 요청을 보낸 상태입니다. \n상대방이 초대 승락할 때까지 기다려주세요.');
+            }
+            if(data.works){
+                userName = user_name_list.toString();
+                alert(userName+'님에게 초대 요청을 보냈습니다.\n상대방의 초대 승락 시, 바로 '+"'"+extore_title+"'"+'에 초대됩니다.');
+            }
+            state = false;
+            $('.searched-user').data('check', state);
+            $('.searched-user').css('background-color', 'white');
+        }
+
+        $('.leaveExtore').click(function(e){
+            e.preventDefault();
+            url = $(this).attr('href');
+            extoreTitle = $('.extore-title').text();
+            checkLeave = confirm("'"+extoreTitle+"'"+'에서 탈퇴하시겠습니까?');
+            if(checkLeave == true){
+                $.ajax({
+                    url:url,
+                    method:"POST",
+                    data:{
+                        'csrfmiddlewaretoken':'{{csrf_token}}',
+                        'is_ajax':true,
+                    }
+                }).done(function(data){
+                    if(data.leaved) {
+                        alert("'"+extoreTitle+"'"+'에서 탈퇴하였습니다.\n 메인 화면으로 돌아갑니다.');
+                        window.location.href = '{% url 'extore:extore_list' %}';
+                    }
+                });
+            }
+        });
+
+        // 회원가입, 로그인 창 닫기
+        $('.btn-close').click(function(e){
+            location.reload();
+        });
+
+        // 회원가입 진행
+        $('.btn-signup').click(function(e){
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var form = $('#user-signup')[0];
+            var formData = new FormData(form);
+
+            formData.set("profile", $('#signup-user-profile')[0].files[0]);
+            var realName = $('#signup-user-name').val();
+            $.ajax({
+                url : url,
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                cache: false,
+                type: "POST",
+                data: formData,
+            }).done(function(data){
+                if(data.works){
+                    alert('환영합니다 '+realName+'님\n'+'회원가입이 성공적으로 완료되었습니다.');
+                } else if(data.noEmail) {
+                    alert('이메일 주소를 입력해주세요.');
+                } else if(data.noRealName) {
+                    alert('이름을 입력해주세요.');
+                } else if(data.noPassword) {
+                    alert('비밀번호를 입력해주세요.');
+                } else if(data.noPassword2) {
+                    alert('비밀번호를 확인해주세요.');
+                } else if(data.noProfile) {
+                    alert('프로필 사진을 등록해주세요.');
+                } else if(data.noPhoneNumber) {
+                    alert('휴대폰 번호를 입력해주세요.');
+                } else if(data.wrongEmail) {
+                    alert('올바른 이메일 주소 형식이 아닙니다.');
+                } else if(data.emailExists){
+                    alert('입력하신 이메일이 이미 등록되어있습니다.');
+                } else if(data.phoneNumberExists){
+                    alert('입력하신 휴대폰 번호가 이미 등록되어있습니다.');
+                } else if(data.tooLongNumber){
+                    alert('입력하신 휴대폰 번호는 허용 길이를 초과합니다.');
+                } else if(data.wrongName){
+                    alert('이름엔 영문자, 숫자, 특수문자가 허용되지 않습니다.');
+                } else if(data.tooLongName){
+                    alert('입력하신 이름은 허용 길이를 초과합니다.');
+                } else if(data.shortLength){
+                    alert('비밀번호는 최소 8자리 이상이어야 합니다.');
+                } else if(data.wrongCombination){
+                    alert('비밀번호는 최소 영어 소문자/대문자, 숫자, 특수문자 중,\n 3개 이상 조합으로 구성되어야 합니다.');
+                } else if(data.notMatch){
+                    alert('재입력한 비밀번호가 이전 비밀번호와 일치하지 않습니다.');
+                } else {
+                    alert('정상 요청이 아닙니다.');
+                }
+            });
+        });
+
+        // 로그인 진행
+        $('.btn-login').click(function(e){
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var form = $('#user-login')[0];
+            var formData = new FormData(form);
+
+            $.ajax({
+                url : url,
+                enctype: 'multipart/form-data',
+                processData: false,
+                contentType: false,
+                cache: false,
+                method : 'POST',
+                data : formData,
+            }).done(function(data){
+                if(data.works){
+                    location.reload();
+                } else if(data.wrongInformation) {
+                    alert('입력된 정보와 일치하는 회원 정보가 없습니다.');
+                    $('#login-user-email').val("");
+                    $('#login-user-password').val("");
+
+                } else if(data.noEmail) {
+                    alert('이메일 주소를 입력해주세요.');
+                    $('#login-user-password').val("");
+                } else if(data.noPassword) {
+                    alert('비밀번호를 입력해주세요.');
+                } else {
+                    alert('정상 요청이 아닙니다.');
+                }
+            });
+        });
+
+
+        // 로그아웃 진행
+        $('.user-logout').click(function(e){
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var check = confirm('로그아웃 하시겠습니까?');
+            if(check==true){
+                $.ajax({
+                    url : url,
+                    method : "POST",
+                    data : {
+                        'csrfmiddlewaretoken' : '{{csrf_token}}',
+                    },
+                }).done(function(data){
+                    if(data.works){
+                        alert('로그아웃 되었습니다.');
+                        window.location.href = '{% url 'extore:extore_list' %}'
+                    } else {
+                        alert('정상 요청이 아닙니다.');
+                    }
+                });
+            } else {
+                location.reload();
+            }
+        });
+
+    });
+
+    </script>
     {% block extra_script %}
-    {%  endblock %}
+
+    {% endblock %}
 </body>
 </html>

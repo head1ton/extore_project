@@ -13,5 +13,5 @@ class ScheduleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['title'].label = ''
         self.fields['title'].widget.attrs = {'class':'form-control', 'placeholder':'할 일을 입력하세요.'}
-        self.fields['start'].widget.attrs = {'class':'form-control', 'placeholder':'시작일(ex. 2019-06-28 10:00'}
-        self.fields['end'].widget.attrs = {'class':'form-control', 'placeholder':'종료일(ex. 2019-06-28 18:00'}
+        self.fields['start'].widget.attrs = {'class':'form-control', 'placeholder':'시작일(ex. 2019-06-28 10:00)'}
+        self.fields['end'].widget.attrs = {'class':'form-control', 'placeholder':'종료일(ex. 2019-06-28 18:00)'}

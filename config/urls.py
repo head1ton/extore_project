@@ -22,9 +22,9 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('board/', include('board.urls')),
     path('post/', include('post.urls')),
+    path('schedule/', include('schedule.urls')),
     path('accounts/', include('accounts.urls')),
     path('', include('extore.urls')),
-    path('schedule/', include('schedule.urls')),
     path('admin/', admin.site.urls),
     # 라이브 상태일 때 serve 뷰 사용하여 연결
     # re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

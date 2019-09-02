@@ -5,6 +5,8 @@ app_name = 'board'
 
 urlpatterns = [
     path('create/', board_create, name='board_create'),
+    path('delete/<int:board_id>/', board_delete, name='board_delete'),
+    path('update/<int:board_id>/', board_update, name='board_update'),
     path('list/', board_list, name='board_list'),
     path('detail/<int:board_id>/', board_detail, name='board_detail'),
     path('comments/<int:board_id>/', comment_create, name='comment_create'),

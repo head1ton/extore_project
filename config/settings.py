@@ -33,12 +33,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'accounts',
     'post',
     'schedule',
@@ -51,6 +45,12 @@ INSTALLED_APPS = [
     'location_field.apps.DefaultConfig',
     'fullcalendar',
     'extore',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 ]
 
 MIDDLEWARE = [
@@ -165,6 +165,11 @@ GRAPH_MODELS = {
 # 커스텀 모델 설정
 AUTH_USER_MODEL = 'accounts.User'
 
+# 커스텀 유저 백엔드 설정
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.CustomUserBackend'
+]
+
 # ckeditor 설정
 CKEDITOR_UPLOAD_PATH = 'wysiwyg/'
 CKEDITOR_RESTRICT_BY_USER = True
@@ -200,3 +205,8 @@ LOCATION_FIELD = {
 }
 
 
+
+
+
+from django.urls import reverse_lazy
+LOGIN_URL = reverse_lazy('accounts:login')

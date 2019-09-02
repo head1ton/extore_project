@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Extore{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     {% load static %}
     <link rel="shortcut icon" type="image/png" href="{% static 'images/main_icon.jpg' %}"/>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -12,45 +12,290 @@
 </head>
 <body>
 {% load static %}
-<!-- Image and text -->
-<div class="main_logo">
-<nav class="navbar navbar-light bg-transparent navbar-center">
-    <div class="main_center">
-        <a class="navbar-brand" href="{% url 'extore:extore_list' %}">
-            <img src="{% static 'images/main_icon.jpg' %}" width="70" height="70" class="d-inline-block align-top" alt="">
+<!-- header -->
+<div class="header">
+    <nav class="navbar navbar-light bg-transparent navbar-center">
+        <div class="main_left">
+            <a class="navbar-brand" href="{% url 'extore:extore_list' %}">
+                <img src="{% static 'images/main_icon.jpg' %}" width="50" height="50" class="main-icon" alt="">
             EXTORE
-        </a>
-    </div>
-</nav>
+            </a>
+        </div>
+        <div class="main_right">
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'accounts:logout' %}" class="user-logout">로그아웃</a></li>
+                {% else %}
+                    <li style="float:left;"><a href="#" data-toggle="modal" data-target="#loginModal" data-whatever="@getbootstrap">로그인</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#signupModal" data-whatever="@getbootstrap" >회원가입</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 </div>
+
+<!--회원가입 modal-->
+<div class="modal fade" id="signupModal" tabindex="-1" role="dialog" aria-labelledby="signupModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="signupModalLabel">회원가입</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="btn-close">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="user-signup" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="signup-user-email" class="col-form-label">이메일 주소</label>
+            <input type="text" placeholder="ex. adc@abc.com" class="form-control" id="signup-user-email" name="email">
+          </div>
+          <div class="form-group">
+            <label for="signup-user-name" class="col-form-label">이름</label>
+            <input type="text" placeholder="ex. 홍길동" class="form-control" id="signup-user-name" name="realName">
+          </div>
+          <div class="form-group">
+            <label for="signup-user-profile" class="col-form-label">프로필 사진</label><br>
+            <input type="file" id="signup-user-profile" name="profile">
+          </div>
+          <div class="form-group">
+            <label for="signup-user-phonenumber" class="col-form-label">휴대폰 번호</label>
+            <input type="text" placeholder="ex. 01012345678" class="form-control" id="signup-user-phonenumber" name="phoneNumber">
+          </div>
+          <div class="form-group">
+            <label for="signup-user-password" class="col-form-label">비밀번호</label>
+            <input type="text" placeholder="8자리 이상 (영어 대문자, 소문자, 숫자, 특수문자 중 3종류 조합)" class="form-control" id="signup-user-password" name="password">
+          </div>
+          <div class="form-group">
+            <label for="signup-user-phonenumber" class="col-form-label">비밀번호 확인</label>
+            <input type="text" placeholder="비밀번호 재입력" class="form-control" id="signup-user-password2" name="password2">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-close btn btn-secondary" data-dismiss="modal">돌아가기</button>
+        <a type="button" href="{% url 'accounts:signup' %}" class="btn-signup btn btn-primary">가입하기</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--로그인 modal-->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">로그인</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span class="btn-close" aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="user-login" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="login-user-email" class="col-form-label">이메일 주소</label>
+            <input type="text" placeholder="이메일 주소 입력" class="form-control" id="login-user-email" name="email">
+          </div>
+          <div class="form-group">
+            <label for="login-user-password" class="col-form-label">비밀번호</label>
+            <input type="text" placeholder="비밀번호 입력" class="form-control" id="login-user-password" name="password">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-close btn btn-secondary" data-dismiss="modal">돌아가기</button>
+        <a type="button" href="{% url 'accounts:login' %}" class="btn-login btn btn-primary">로그인하기</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% block content %}
 {% endblock %}
+
+<!-- footer -->
+<div class="footer">
+
+</div>
+
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <style>
-    .main_logo .navbar{
-        height: 160px;
-        margin-top: -50px;
+#footer {
 
-    }
-    .main_center a{
-        position: absolute;
-        left: 50%;
-        transform: translatex(-50%);
-        font-size: 50px;
+}
+.header .navbar{
+    height: 120px;
+    margin-top: -40px;
 
-    }
-    .navbar-brand {
-        font-family: 'Courier';
+}
+.main_right {
+    position:relative;
+    top:55px;
+    float:left;
+    width: 180px;
+    margin-right:100px;
+    text-align: right;
+}
+.main_right ul {
+    list-style-type: None;
+}
+.main_right a{
+    color: black;
+}
+.main_right a:hover {
+    text-decoration: None,
 
-    }
+}
+.main_left a{
+    position: absolute;
+    left: 20px;
+    font-size: 30px;
 
+}
+.navbar-brand {
+    font-family: 'Courier';
+
+}
+.main-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    overflow: hidden;
+}
 </style>
+<script>
+$(function(){
+    // 회원가입, 로그인 창 닫기
+    $('.btn-close').click(function(e){
+        location.reload();
+    });
+
+    // 회원가입 진행
+    $('.btn-signup').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var form = $('#user-signup')[0];
+        var formData = new FormData(form);
+
+        formData.set("profile", $('#signup-user-profile')[0].files[0]);
+        var realName = $('#signup-user-name').val();
+        $.ajax({
+            url : url,
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            type: "POST",
+            data: formData,
+        }).done(function(data){
+            if(data.works){
+                alert('환영합니다 '+realName+'님\n'+'회원가입이 성공적으로 완료되었습니다.');
+            } else if(data.noEmail) {
+                alert('이메일 주소를 입력해주세요.');
+            } else if(data.noRealName) {
+                alert('이름을 입력해주세요.');
+            } else if(data.noPassword) {
+                alert('비밀번호를 입력해주세요.');
+            } else if(data.noPassword2) {
+                alert('비밀번호를 확인해주세요.');
+            } else if(data.noProfile) {
+                alert('프로필 사진을 등록해주세요.');
+            } else if(data.noPhoneNumber) {
+                alert('휴대폰 번호를 입력해주세요.');
+            } else if(data.wrongEmail) {
+                alert('올바른 이메일 주소 형식이 아닙니다.');
+            } else if(data.emailExists){
+                alert('입력하신 이메일이 이미 등록되어있습니다.');
+            } else if(data.phoneNumberExists){
+                alert('입력하신 휴대폰 번호가 이미 등록되어있습니다.');
+            } else if(data.tooLongNumber){
+                alert('입력하신 휴대폰 번호는 허용 길이를 초과합니다.');
+            } else if(data.wrongName){
+                alert('이름엔 영문자, 숫자, 특수문자가 허용되지 않습니다.');
+            } else if(data.tooLongName){
+                alert('입력하신 이름은 허용 길이를 초과합니다.');
+            } else if(data.shortLength){
+                alert('비밀번호는 최소 8자리 이상이어야 합니다.');
+            } else if(data.wrongCombination){
+                alert('비밀번호는 최소 영어 소문자/대문자, 숫자, 특수문자 중,\n 3개 이상 조합으로 구성되어야 합니다.');
+            } else if(data.notMatch){
+                alert('재입력한 비밀번호가 이전 비밀번호와 일치하지 않습니다.');
+            } else {
+                alert('정상 요청이 아닙니다.');
+            }
+        });
+    });
+
+    // 로그인 진행
+    $('.btn-login').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var form = $('#user-login')[0];
+        var formData = new FormData(form);
+
+        $.ajax({
+            url : url,
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            method : 'POST',
+            data : formData,
+        }).done(function(data){
+            if(data.works){
+                location.reload();
+            } else if(data.wrongInformation) {
+                alert('입력된 정보와 일치하는 회원 정보가 없습니다.');
+                $('#login-user-email').val("");
+                $('#login-user-password').val("");
+
+            } else if(data.noEmail) {
+                alert('이메일 주소를 입력해주세요.');
+                $('#login-user-password').val("");
+            } else if(data.noPassword) {
+                alert('비밀번호를 입력해주세요.');
+            } else {
+                alert('정상 요청이 아닙니다.');
+            }
+        });
+    });
+
+
+    // 로그아웃 진행
+    $('.user-logout').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var check = confirm('로그아웃 하시겠습니까?');
+        if(check==true){
+            $.ajax({
+                url : url,
+                method : "POST",
+                data : {
+                    'csrfmiddlewaretoken' : '{{csrf_token}}',
+                },
+            }).done(function(data){
+                if(data.works){
+                    alert('로그아웃 되었습니다.');
+                    location.reload();
+                } else {
+                    alert('정상 요청이 아닙니다.');
+                }
+            });
+        } else {
+            location.reload();
+        }
+    });
+});
+</script>
 {% block extra_script %}
 {% endblock %}
 
-
 </body>
 </html>
+

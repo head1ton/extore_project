@@ -1,61 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}
-Together
 {% endblock %}
 
-{% block content %}
-<hr>
-<nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav extore mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'extore:extore_list' %}">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Group
-        </a>
-        {% if user.is_authenticated %}
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            {% for group in group_list %}
-            <a class="dropdown-item" href="{% url 'extore:extore_detail' group.id %}">
-                {{group.title}}
-            </a>
-            {% endfor %}
-        </div>
-        {% endif %}
-      </li>
-    </ul>
-  </div>
-</nav>
-
-<div class="header">
-    {% load static %}
-        <div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
-            <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="{% static 'images/index4.png' %}" class="d-block w-100" alt="사랑">
-            </div>
-            <div class="carousel-item">
-                <img src="{% static 'images/index1.jpg' %}" class="d-block w-100" alt="우정">
-            </div>
-            <div class="carousel-item">
-                <img src="{% static 'images/index3.jpg' %}" class="d-block w-100" alt="연민">
-            </div>
-        </div>
-    <a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-     </a>
-    <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-        </a>
-    </div>
-</div>
-
+{% block extra_style %}
+{% load static %}
 <style>
-    div#navbarSupportedContent{z-index:9999;}
+    div#navbarSupportedContent{z-index:100;}
 
     .navbar.navbar-expand-lg{
         height: 40px;
@@ -63,11 +13,7 @@ Together
     .group_bar{
 
     }
-    .carousel-inner img {
-        width: 100px;
-        height: 500px;
-         z-index:2;
-    }
+
 
     .menu a{
         color: red;
@@ -82,6 +28,264 @@ Together
         transform: translatex(-50%);
     }
 
-</style>
+    .extore-img {
+        float:left;
+        display:inline-block;
+        width:70px;
+        height:70px;
+        border-radius:35px;
+        background-size:cover;
+        background-repeat:no-repeat;
+        background-position:center center;
+    }
+    .carousel-item {
+        z-index: -99px;
+    }
 
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<hr>
+<nav class="navbar navbar-expand-sm navbar-light bg-white text-center">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav extore mr-auto">
+      <li class="nav-item dropdown">
+        <a style="color:black;" class="nav-link dropdown-toggle" href="#" id="dropdownMenuOffset" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="10,50">
+          Extore
+        </a>
+        {% if user.is_authenticated %}
+        <div style="width:250px;" class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
+            <div class="dropdown-header text-center"><b>소속 익스토어</b></div>
+            <div class="dropdown-divider"></div>
+            {% if group_list %}
+                <div style="margin: 20px 0 20px 0">
+                    {% for group in group_list %}
+                    <a class="dropdown-item text-center" href="{% url 'extore:extore_detail' group.id %}">
+                        {{group.title}}
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="margin-top:20px; margin-bottom:20px;" class="text-center">활성화된 익스토어가 없습니다.</p>
+            {% endif %}
+                <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-center"  href="#" data-toggle="modal" data-target="#extoreInvited">초대 알림</a>
+                <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-center"  href="#" data-toggle="modal" data-target="#extoreCreate">익스토어 생성</a>
+        </div>
+        {% else %}
+        <div style="width:250px;" class="dropdown-menu" aria-labelledby="dropdownMenuOffset">
+            <div class="dropdown-header text-center"><b>로그인이 필요합니다.</b></div>
+        </div>
+        {% endif %}
+
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="main_content">
+    {% load static %}
+
+    <!-- exoterInvited Modal -->
+    <div class="modal fade" id="extoreInvited" tabindex="-1" role="dialog" aria-labelledby="extoreInvitedLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" style="z-index:1000;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="extoreInvitedLabel">초대받은 익스토어</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              {% load calc %}
+              {% if invited_groups %}
+                  {% for invited_group in invited_groups %}
+                    <div class="card invitation">
+                      <div class="card-body" style="padding:15px;">
+                        <div class="extore-img" style="background-image:url({{invited_group.group.image.url}});"></div>
+                        <div style="float:left;">
+                          <h5 style="margin-left:20px; margin-bottom:0;">{{invited_group.group.title}}</h5>
+                          <p style="display:inline-block; margin:10px 15px 0 20px; color:grey;">방장: {{invited_group.group.author.last_name}}{{invited_group.group.author.first_name}}</p>
+                          <p style="display:inline-block; margin:10px 0 0 0; color:grey;">인원: {{invited_group.group.member.count}}</p>
+                        </div>
+                        <p style="display:inline-block; float:right;">{{invited_group|same_invitation_time_since:invited_dates}}</p>
+                        <div style="clear:left;"></div>
+                        <div style="float:right;">
+                          <a href="{% url 'accounts:accept' invited_group.id %}" class="invite-response btn btn-primary">승락</a>
+                          <a href="{% url 'accounts:accept' invited_group.id %}" class="invite-response btn btn-secondary">거부</a>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+              {% else %}
+              <p style="text-align:center;">초대받은 익스토어가 없습니다.</p>
+              {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- exoterCreate Modal -->
+    <div class="modal fade" id="extoreCreate" tabindex="-1" role="dialog" aria-labelledby="extoreCreateLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" style="z-index:1000;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="extoreCreateLabel">새로운 익스토어 생성</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="extoreCreateModal" action="{% url 'extore:extore_create' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="extore-title-div input-group mb-3">
+                  <input type="text" class="form-control extoreTitle" name="extoreTitle" placeholder="생성할 익스토어 이름을 입력해주세요." aria-label="생성할 익스토어 이름을 입력해주세요." aria-describedby="button-addon2">
+                  <div class="input-group-append">
+                    <a href="{% url 'extore:extore_overlap' %}" class="overlap-check btn btn-outline-secondary" type="button" id="button-addon2">중복체크</a>
+                  </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="file" name="extoreImage" class="extoreImage"> <!--multiple 입력하면 다수 이미지 선택 가능-->
+                </div>
+                <div style="float:right;">
+                    <input type="submit" class="btn btn-primary" value="생성하기">
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Carousel -->
+    <div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel">
+      <div class="carousel-inner" >
+        <div class="carousel-item active" data-interval="5000">
+          <img src="{% static 'images/memory1.jpg' %}" class=" w-100">
+        </div>
+        <div class="carousel-item">
+          <img src="{% static 'images/memory3.jpg' %}" class="d-block w-100">
+        </div>
+        <div class="carousel-item" >
+          <img src="{% static 'images/memory4.jpg' %}" class="d-block w-100">
+        </div>
+      </div>
+      <a href="#carouselExampleFade" data-slide="prev"></a>
+      <a href="#carouselExampleFade" data-slide="next"></a>
+    </div>
+
+
+</div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script>
+$(function(){
+    $('.invite-response').click(function(e){
+        e.preventDefault();
+        url = $(e.currentTarget).attr('href');
+        result = $(e.currentTarget).text();
+        console.log(result);
+        keepGoing = confirm(result+'하시겠습니까?');
+
+        if(keepGoing == true){
+            $.ajax({
+                url : url,
+                method : "POST",
+                data : {
+                    'csrfmiddlewaretoken': '{{csrf_token}}',
+                    'result' : result,
+                    'is_ajax' : true,
+                },
+            }).done(function(data){
+                if(data.accepted){
+                    alert('축하합니다!\n'+"'"+data.groupTitle+"'"+'의 회원이 되었습니다.');
+                    location.reload();
+                }
+                if(data.rejected){
+                    alert("'"+data.groupTitle+"'"+'의 초대 요청을 거절하였습니다.');
+                    location.reload();
+                }
+            });
+        }
+    });
+
+    // carousel 이미지 변경되는 시간 간격 설정
+    $('.carousel').carousel({
+      interval: 4000
+    })
+
+    // 익스토어 이름 중복 체크
+    $('.overlap-check').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var extoreTitle = $(this).parent().siblings('.extoreTitle').val();
+        console.log(url);
+        console.log(extoreTitle);
+        $.ajax({
+            url : url,
+            method : "POST",
+            data : {
+                'csrfmiddlewaretoken': '{{csrf_token}}',
+                'extoreTitle' : extoreTitle,
+                'is_ajax' : true,
+            },
+        }).done(function(data){
+            if(data.overlap){
+                alert("이미 사용중인 이름입니다. 다른 이름으로 입력해주세요.");
+            } else if(data.works) {
+                alert("사용할 수 있는 이름입니다.");
+            } else if(data.no_data) {
+                alert("익스토어 이름을 입력하시고, 중복 체크를 진행해주세요.");
+            } else {
+                alert("정상적인 요청이 아닙니다.");
+            }
+        });
+    });
+
+    // 익스토어 생성
+    $('#extoreCreateModal').submit(function(e){
+        e.preventDefault();
+        var url = $(this).attr('action');
+        var form = $(this)[0];
+        var formData = new FormData(form);
+
+        formData.set("extoreImage", $('.extoreImage')[0].files[0]);
+
+        var extoreTitle = $(this).children('.extore-title-div').children('.extoreTitle').val();
+
+        $.ajax({
+            url : url,
+            enctype: 'multipart/form-data',
+            processData: false,
+            contentType: false,
+            cache: false,
+            type: "POST",
+            data : formData,
+        }).done(function(data){
+            if(data.overlap){
+                alert('\n이미 사용중인 이름입니다. 다른 이름으로 입력해주세요.');
+            } else if(data.works) {
+                alert("'"+extoreTitle+"' "+'익스토어를 생성하였습니다.');
+                location.reload();
+            } else if(data.neither_data){
+                alert('\n생성할 익스토어 이름을 입력해주시고, \n배경 이미지 파일을 업로드해주세요.');
+            } else if(data.no_extoreTitle){
+                alert('\n생성할 익스토어 이름을 입력해주세요.');
+            } else if(data.no_extoreImage){
+                alert('\n생성할 익스토어 배경 이미지 파일을 업로드해주세요.');
+            } else {
+                alert('\n정상 요청이 아닙니다.');
+            }
+        });
+    });
+
+
+});
+</script>
 {% endblock %}
