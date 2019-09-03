@@ -2,51 +2,84 @@
 {% block title %}
 {% endblock %}
 
+{% block extra_style %}
+<style>
+    #board-list {
+        display: inline-block;
+        text-align:left;
+    }
+    .back-to-page {
+        width:100px;
+        float:right;
+        margin-bottom:20px;
+    }
+    .board-update:hover {
+        text-decoration: none;
+    }
+    .board-delete:hover {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-
-
-<div class="row">
-   <div class="col"></div>
-   <div class="col-6">
-       <a href="{% url 'board:board_list' %}?extore={{group.id}}">게시물 목록 가기</a>
-       <br>
-
-       <div class="board-category">{{board.category}}</div>
-       <div class="board-author">{{board.author}}</div>
-       <div class="board-contents">{{board.text|safe}}</div>
-
-       {% ifequal board.author user %}
-       <a class="board-update" href="{% url 'board:board_update' board.id %}" style="margin-right:5px;">수정</a>
-       <a class="board-delete" href="{% url 'board:board_delete' board.id %}">삭제</a>
-       <div class="after-click-update"></div>
-       {% endifequal %}
-       <hr>
-       <div class="card" style="width: 40rem; margin-top:-10px;">
-          <div>
-              <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
-              <div style="float:right; height:70px; line-height:70px;">
-                  <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-                      <form action="{% url 'board:comment_create' board.id %}" method="post" id="comment_form">
-                          {% csrf_token %}
-                          <input type="hidden" name="is_ajax" value="">
-                          <div class="row" style="width:590px; padding-right:10px;">
-                              <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
-                              <div class="col">
-                                  <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
-                              </div>
+<div id="board-list">
+    <div>
+        <a href="{% url 'board:board_list' %}?extore={{group.id}}" class="btn btn-primary back-to-page">돌아가기</a>
+    </div>
+   <div class="card" style="width: 40rem;">
+       <div id="profiles">
+           <div class="img-profile" style="background-image:url({{board.author.profile.url}})"></div>
+           <a class="a-tag name-profile" href="#">{{board.author.last_name}}{{board.author.first_name}}</a>
+           <p style="float:right; margin-right:10px; color:rgb(185,185,185);">
+               {% load calc %}
+               {{board.created|time_since}}
+           </p>
+       </div>
+       <hr style="margin:0;">
+       <div class="btn btn-light">
+           <h6 style="display:inline-block; float:left; color:grey;">{{board.category}}</h6>
+           <h7 style="display:inline-block;">{{board.title}}</h7>
+       </div>
+       <div class="card-body" style="padding:1.25rem 1.25rem 0.5rem 1.25rem;">
+           <ul style="list-style-type:none; padding:0px;">
+               <li>
+                   <div style="padding:5px;">{{board.text|safe}}</div>
+               </li>
+               <li>
+                   {% ifequal board.author user %}
+                   <a class="board-delete" href="{% url 'board:board_delete' board.id %}" style="float:right;">삭제</a>
+                   <a class="board-update" href="{% url 'board:board_update' board.id %}?extore={{group.id}}" style="float:right;margin-right:10px;">수정</a>
+                   <div class="after-click-update"></div>
+                   {% endifequal %}
+               </li>
+           </ul>
+           <div style="height:10px; clear:both;"></div>
+       </div>
+   </div>
+   <div class="card" style="width: 40rem; margin-top:-10px;">
+      <div>
+          <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
+          <div style="float:right; height:70px; line-height:70px;">
+              <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+                  <form action="{% url 'board:comment_create' board.id %}" method="post" id="comment_form">
+                      {% csrf_token %}
+                      <input type="hidden" name="is_ajax" value="">
+                      <div class="row" style="width:590px; padding-right:10px;">
+                          <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+                          <div class="col">
+                              <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
                           </div>
-                      </form>
-                  </div>
+                      </div>
+                  </form>
               </div>
           </div>
-          <div id="comment_list">
-            {% include 'board/comment_list.html' %}
-          </div>
-        </div>
-
-
+      </div>
+      <div id="comment_list">
+        {% include 'board/comment_list.html' %}
+      </div>
    </div>
-   <div class="col"></div>
+
 </div>
 
 
@@ -151,47 +184,24 @@ $(function () {
             }
         });
     });
-    $('.board-update').click(function(e) {
+    $('.board-delete').click(function(e){
         e.preventDefault();
         var url = $(this).attr('href');
-        var contents = $(this).siblings('.board-contents');
-        var input = "<input type='textarea' class='contents-to-update' value='"+contents.text()+"'>";
-        contents.html(input);
-
-
-
-        $("<a class='board-update-save' href='#' style='margin-right:5px;'>저장</a> \
-            <a class='board-update-cancel' href='#'>취소</a>").appendTo('.after-click-update')
-
-        $('.board-update').hide();
-        $('.board-delete').hide();
-
-        $('.board-update-save').click(function(e){
-            e.preventDefault();
-            console.log(url);
-            text = $('.contents-to-update').val();
-            console.log(text);
+        var check = confirm('해당 게시물을 삭제하시겠습니까?');
+        if(check==true) {
             $.ajax({
-                url:url,
-                method: 'POST',
-                data:{
-                    'text':text,
-                    'csrfmiddlewaretoken': '{{csrf_token}}',
-                }
-            }).done(function(data) {
-                if(data.works) {
-                    contents.text(text);
-                    $('.board-update').show();
-                    $('.board-delete').show();
-                    $('.board-update-save').hide();
-                    $('.board-update-cancel').hide();
+                url : url,
+            }).done(function(data){
+                if(data.works){
+                    alert('해당 게시물이 삭제되었습니다.');
+                    window.location.href = "{% url 'board:board_list' %}?extore={{group.id}}"
+                } else if(data.noAuthor){
+                    alert('삭제할 권한이 없습니다.');
+                } else {
+                    alert('정상 요청이 아닙니다.');
                 }
             });
-        });
-        $('.board-update-cancel').click(function() {
-            e.preventDefault();
-            location.reload();
-        });
+        }
     });
 
 });

@@ -5,86 +5,158 @@
 
 {% block extra_style %}
 <style>
-    .back-to-page {
+.back-to-page {
     width:100px;
     float:right;
     margin-bottom:20px;
-    }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div style="height:100px;"></div>
-<div id="screen">
-    <div id="post-list">
-        <button class="btn btn-primary back-to-page" onclick="history.go(-1);">돌아가기</button>
-        <div class="card" style="width: 40rem;">
-          <div id="profiles">
-              <div class="img-profile" style="background-image:url({{object.author.profile.url}})"></div>
-              <a class="a-tag name-profile" href="#">{{object.author.last_name}}{{object.author.first_name}}</a>
-              <p style="float:right; margin-right:10px; color:rgb(185,185,185);">
-                  {% load calc %}
-                  {{object.created|time_since}}
-              </p>
-          </div>
-          <img src="{{object.image.url}}" class="card-img-top">
-          <div class="card-body" style="padding:1.25rem 1.25rem 0.5rem 1.25rem;">
-             <ul style="list-style-type:none; padding:0">
-                  <li style="height:30px;margin-bottom:10px;">
-                      <a href="{% url 'post:post_like' object.id %}" class="btn-like {% if user in object.like.all %}activate{% endif %}" style="height:30px; margin-right:10px;"></a>
-                      <a href="{% url 'post:detail' object.id %}?extore={{group.id}}" class="btn-comment" style="height:30px;"></a>
-                      <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
-                  </li>
-                  <li class="like-count" style="font-size:15px; font-weight:bold;">
-                      좋아요 {{object.like.count}}개
-                  </li>
-                  <li style="margin:10px 0;">
-                      <a class="a-tag" href="#"><b>{{object.author.last_name}}{{object.author.first_name}}</b></a>
-                      <p style="display:inline-block; margin:0">{{object.text}}</p>
-                  </li>
-                  <li>
-                      {% load tagging_tags %}
-                      {% tags_for_object object as tags %}
-                      {% if tags %}
-                        {% for tag in tags %}
-                            <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}?extore={{group.id}}">#{{tag.name}}</a>
-                      {% endfor %}
-                      {% endif %}
-                  </li>
-              </ul>
-              <div style="height:10px;"></div>
-          </div>
-        </div>
-        <div class="card" style="width: 40rem; margin-top:-10px;">
-          <div>
-              <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
-              <div style="float:right; height:70px; line-height:70px;">
-                  <div style="display:inline-block; vertical-align:middle; line-height:normal;">
-                      <form action="{% url 'post:comment_create' object.id %}" method="post" id="comment_form">
-                          {% csrf_token %}
-                          <input type="hidden" name="is_ajax" value="">
-                          <div class="row" style="width:590px; padding-right:10px;">
-                              <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
-                              <div class="col">
-                                <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
-                              </div>
+<div id="post-list">
+    <!--이전 페이지 돌아가기 : onclick="history.go(-1);"-->
+    <div>
+        <a href="{% url 'post:list' %}?extore={{group.id}}" class="btn btn-primary back-to-page">돌아가기</a>
+    </div>
+    <div class="card" style="width: 40rem;">
+      <div id="profiles">
+          <div class="img-profile" style="background-image:url({{object.author.profile.url}})"></div>
+          <a class="a-tag name-profile" href="#">{{object.author.last_name}}{{object.author.first_name}}</a>
+          <p style="float:right; margin-right:10px; color:rgb(185,185,185);">
+              {% load calc %}
+              {{object.created|time_since}}
+          </p>
+      </div>
+      <img src="{{object.image.url}}" class="card-img-top">
+      <div class="card-body" style="padding:1.25rem 1.25rem 0.5rem 1.25rem;">
+         <ul style="list-style-type:none; padding:0">
+              <li style="height:30px;margin-bottom:10px;">
+                  <a href="{% url 'post:post_like' object.id %}" class="btn-like {% if user in object.like.all %}activate{% endif %}" style="height:30px; margin-right:10px;"></a>
+                  <a href="{% url 'post:detail' object.id %}?extore={{group.id}}" class="btn-comment" style="height:30px;"></a>
+                  <a href="{% url 'post:post_saved' object.id %}" class="btn-save {% if user in object.saved.all %}activate{% endif %}" style="float:right; height:30px;"></a>
+              </li>
+              <li class="like-count" style="font-size:15px; font-weight:bold;">
+                  좋아요 {{object.like.count}}개
+              </li>
+              <li class="post-contents" style="margin:10px 0;">
+                  <a class="a-tag" href="#"><b>{{object.author.last_name}}{{object.author.first_name}}</b></a>
+                  <p class="post-text" style="display:inline-block; margin:0">{{object.text}}</p>
+              </li>
+              <li>
+                  {% load tagging_tags %}
+                  {% tags_for_object object as tags %}
+                  {% if tags %}
+                    {% for tag in tags %}
+                        <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}?extore={{group.id}}">#{{tag.name}}</a>
+                  {% endfor %}
+                  {% endif %}
+                  {% ifequal object.author user %}
+                  <a href="{% url 'post:delete' object.id %}" class="post-delete" style="float:right;">삭제</a>
+                  <a href="{% url 'post:update' object.id %}" class="post-update" style="float:right; margin-right:10px;">수정</a>
+                  {% endifequal %}
+              </li>
+          </ul>
+          <div style="height:10px; clear:both;"></div>
+      </div>
+    </div>
+    <div class="card" style="width: 40rem; margin-top:-10px;">
+      <div>
+          <div class="img-profile" style="background-image:url({{user.profile.url}})"></div>
+          <div style="float:right; height:70px; line-height:70px;">
+              <div style="display:inline-block; vertical-align:middle; line-height:normal;">
+                  <form action="{% url 'post:comment_create' object.id %}" method="post" id="comment_form">
+                      {% csrf_token %}
+                      <input type="hidden" name="is_ajax" value="">
+                      <div class="row" style="width:590px; padding-right:10px;">
+                          <div id="comment_write" class="col-8" style="padding:0 0 0 5px;">{{comment_form.text}}</div>
+                          <div class="col">
+                            <input type="submit" value="댓글 입력" class="btn btn-outline-primary form-control">
                           </div>
-                      </form>
-                  </div>
+                      </div>
+                  </form>
               </div>
           </div>
-          <div id="comment_list">
-            {% include 'post/comment_list.html' %}
-          </div>
-        </div>
+      </div>
+      <div id="comment_list">
+        {% include 'post/comment_list.html' %}
+      </div>
     </div>
 </div>
-<div style="height:100px"></div>
+
 {% endblock %}
 
 {% block extra_script %}
 <script type="text/javascript">
 $(function () {
+    $(".post-update").click(function(e){
+        e.preventDefault();
+        url = $(this).attr('href');
+        $(".post-update").after("<a href='#' class='post-update-cancel' style='float:right;'>취소</a><a href='#' class='post-update-save' style='float:right; margin-right:10px;'>저장</a>");
+
+        postText = $(this).parent().siblings('.post-contents').children('.post-text');
+        input = "<input style='width:540px' class='update-text form-control' value='"+postText.text()+"'>";
+        postText.html(input);
+
+        $('.post-update').hide();
+        $('.post-delete').hide();
+
+        $('.post-update-cancel').click(function(e){
+            e.preventDefault();
+            location.reload();
+        });
+        $('.post-update-save').click(function(e){
+            e.preventDefault();
+            check = confirm('입력하신 내용으로 수정하시겠습니까?');
+            text = $('.update-text').val();
+            console.log(text);
+            if(check==true){
+                $.ajax({
+                    url : url,
+                    method : 'POST',
+                    data : {
+                        'csrfmiddlewaretoken' : '{{csrf_token}}',
+                        'text' : text,
+                    }
+                }).done(function(data){
+                    if(data.works){
+                        alert('게시물이 수정되었습니다.');
+                        postText.text(text);
+                        $('.post-update-save').hide();
+                        $('.post-update-cancel').hide();
+                        $('.post-update').show();
+                        $('.post-delete').show();
+                    } else if(data.noAuthor) {
+                        alert('수정 권한이 없습니다.');
+                        location.reload();
+                    } else {
+                        alert('정상 요청이 아닙니다.');
+                        location.reload();
+                    }
+                });
+            }
+        });
+    });
+
+
+    $(".post-delete").click(function(e){
+        e.preventDefault();
+        url = $(this).attr('href');
+        check = confirm('해당 게시물을 삭제하시겠습니까?');
+        $.ajax({
+            url : url,
+        }).done(function(data){
+            if(data.works){
+                alert('게시물이 삭제되었습니다.');
+                window.location.href = "{% url 'post:list' %}?extore={{group.id}}"
+            } else if(data.noAuthor) {
+                alert('삭제 권한이 없습니다.');
+            } else {
+                alert('정상 요청이 아닙니다.');
+            }
+        });
+    });
+
     $(".btn-like").click(function(e){
         e.preventDefault();
         selected_object = $(e.currentTarget);
@@ -221,6 +293,8 @@ $(function () {
             }
         });
     });
+
+
 
 });
 

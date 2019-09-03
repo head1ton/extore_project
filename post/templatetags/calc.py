@@ -43,5 +43,5 @@ def same_invitation_time_since(inviteStatus, inviteDates):
 
 
 @register.filter
-def list_index(list, forloop):
-    return list[forloop]
+def list_index(current_top_num,  forloop):
+    return (current_top_num - forloop)

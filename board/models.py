@@ -19,7 +19,7 @@ class Board(models.Model):
     extore = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='boards')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='boards')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='boards')
-    title = models.CharField(max_length=50, blank=True)
+    title = models.CharField(max_length=20, blank=True)
     text = RichTextUploadingField()
     created=models.DateTimeField(auto_now_add=True)
     updated=models.DateTimeField(auto_now=True)

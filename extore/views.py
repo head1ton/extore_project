@@ -1,3 +1,4 @@
+import math
 import random
 
 from django.http import JsonResponse
@@ -6,6 +7,7 @@ from django.shortcuts import render
 from .models import Group
 from .forms import GroupForm
 from post.models import Post
+from accounts.models import User
 
 # 익스토어 목록
 def group_list(request):
@@ -32,7 +34,19 @@ def group_detail(request, group_id):
         group_list = request.user.members_groups.all()
         posts = Post.objects.filter(extore_id=group_id)
 
-        return render(request, 'post/post_list.html',{'object_list':posts, 'group':group, 'group_list':group_list})
+        page = int(request.GET.get('page', 1))
+        paginated_by = 3
+        total_count = len(posts)
+        total_page = math.ceil(total_count / paginated_by)
+        page_range = range(1, total_page + 1)
+        start_index = paginated_by * (page - 1)
+        end_index = paginated_by * page
+        posts = posts[start_index:end_index]
+
+        users = User.objects.all()
+
+        return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, \
+                                                       'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
 
 
 # 익스토어 삭제

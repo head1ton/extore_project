@@ -1,6 +1,6 @@
 <div style="padding:20px; height:68px; line-height:68px;">
     {% if users %}
-    <table class="table" style="margin:10px auto;">
+    <table class="table" style="margin:10px auto; width: 700px;">
         <thead class="thead-light">
         <tr>
             <th scope="col">profile</th>
@@ -11,7 +11,7 @@
         </thead>
         <tbody>
             {% for user in users %}
-            <tr class="searched-user">
+            <tr class="searched-user" style="height:50px;">
                 <td>
                     <div class="searched-user-img" style="background-image:url({{user.profile.url}})"></div>
                 </td>

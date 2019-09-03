@@ -2,37 +2,109 @@
 {% block title %}
 {% endblock %}
 
+{% block extra_style %}
+<style>
+#board-list {
+    width:800px;
+    display: inline-block;
+}
+
+.board-write {
+    width:100px;
+    float:right;
+    margin-bottom:20px;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-
 {% load static %}
-<div class="container">
-    <div class="row mx-auto">
-        <div class="col">
 
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Number</th>
-                  <th scope="col">title</th>
-                  <th scope="col">author</th>
-                  <th scope="col">date</th>
-                </tr>
-              </thead>
-              <tbody>
-                    {% load calc %}
-                    {% for board in board_list %}
-                    <tr>
-                        <th scope="row"><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{num_in_turn|list_index:forloop.counter0}}</a></th>
-                        <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.title}}</a></td>
-                        <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.author.last_name}}{{board.author.first_name}}</a></td>
-                        <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.created|date:"Y-m-d D"}}</a></td>
-                    </tr>
-                    {% endfor %}
-              </tbody>
-            </table>
-            <a href="{% url 'board:board_create'%}?extore={{group.id}}" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">글쓰기</a>
-        </div>
+<div id="board-list">
+
+    <div>
+        <a href="{% url 'board:board_create'%}?extore={{group.id}}" class="btn btn-primary board-write" >글 작성</a>
     </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          {% if currentTopNum %}
+              <th scope="col">Number</th>
+              <th scope="col">Title</th>
+              <th scope="col">Author</th>
+              <th scope="col">Date</th>
+          {% else %}
+              <th>Title</th>
+              <th>Author</th>
+              <th>Date</th>
+          {% endif %}
+
+        </tr>
+      </thead>
+      <tbody>
+            {% load calc %}
+            {% for board in board_list %}
+            <tr>
+                {% if currentTopNum %}
+                    <th scope="row"><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{currentTopNum|list_index:forloop.counter0}}</a></th>
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.title}}</a></td>
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.author.last_name}}{{board.author.first_name}}</a></td>
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.created|date:"Y-m-d D"}}</a></td>
+                {% else %}
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.title}}</a></td>
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.author.last_name}}{{board.author.first_name}}</a></td>
+                    <td><a class="nav-link " style="color:black;" href="{% url 'board:board_detail' board.id %}?extore={{group.id}}">{{board.created|date:"Y-m-d D"}}</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+      </tbody>
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% for page in page_range %}
+            {% if searchKey %}
+            <li class="page-item">
+                <a class="page-link" href="{% url 'board:board_list' %}?extore={{group.id}}&searchKey={{searchKey}}&searchType={{searchType}}&page={{page}}">{{page}}</a>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="{% url 'board:board_list' %}?extore={{group.id}}&page={{page}}">{{page}}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <form action="{% url 'board:board_list' %}" method="post" id="search_form">
+        {% csrf_token %}
+        <input type="hidden" name="extore" value="{{group.id}}">
+        <div class="form-row align-items-center justify-content-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="title" name="search_type" checked>
+                <label class="form-check-label" for="inlineCheckbox2">제목</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="realName" name="search_type">
+                <label class="form-check-label" for="inlineCheckbox1">작성자</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="text" name="search_type">
+                <label class="form-check-label" for="inlineCheckbox3">본문</label>
+            </div>
+        </div>
+        <div class="form-row align-items-center justify-content-center">
+            <div class="col-sm-3 my-1">
+                <input type="text" class="form-control" placeholder="검색어" name="search_key">
+            </div>
+
+            <div class="col-auto my-1">
+                <button type="submit" class="btn btn-primary">검색하기</button>
+            </div>
+        </div>
+    </form>
+
+
 </div>
 
 

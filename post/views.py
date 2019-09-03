@@ -1,3 +1,6 @@
+import math
+
+from django.db.models import Q
 from django.shortcuts import redirect, render, get_list_or_404, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.contrib import messages
@@ -35,14 +38,55 @@ def post_create(request):
 
 
 def post_list(request):
-    if request.method == 'GET':
-        group_id = request.GET.get('extore', None)
-        if group_id:
-            posts = Post.objects.filter(extore_id=group_id)
-            group = Group.objects.get(id=group_id)
-            group_list = request.user.members_groups.all()
+    group_id = request.GET.get('extore', None) if request.method == "GET" else request.POST.get('extore', None)
+    if group_id:
+        posts = Post.objects.filter(extore_id=group_id)
+        group = Group.objects.get(id=group_id)
+        group_list = request.user.members_groups.all()
+
+        page = int(request.GET.get('page', 1))
+        paginated_by = 3
+
+        search_type = request.POST.getlist('search_type', None) if request.method == "POST" else request.GET.get('searchType', None)
+
+        search_q = None
+        search_key = request.POST.get('search_key', None) if request.method == "POST" else request.GET.get('searchKey', None)
+
+        # 검색어 입력한 경우
+        if search_key:
+            if 'text' in search_type:
+                temp_q = Q(text__icontains=search_key)
+                search_q = search_q | temp_q if search_q else temp_q
+            if 'realName' in search_type:
+                last_name = search_key[0]
+                first_name = search_key[1:]
+                temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
+                search_q = search_q | temp_q if search_q else temp_q
+
+            posts = get_list_or_404(posts, search_q)
+            total_count = len(posts)
+            total_page = math.ceil(total_count / paginated_by)
+            page_range = range(1, total_page + 1)
+            start_index = paginated_by * (page - 1)
+            end_index = paginated_by * page
+            posts = posts[start_index:end_index]
             users = User.objects.all()
-            return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, 'group_list':group_list, 'users':users})
+            return render(request, 'post/post_list.html', \
+                          {'object_list': posts, 'group': group, 'group_list': group_list, \
+                           'users': users, 'total_page': total_page, 'page_range': page_range, 'searchKey': search_key,
+                           'searchType': search_type})
+
+        # 검색어 입력하지 않고 목록 조회하는 경우
+        total_count = len(posts)
+        total_page = math.ceil(total_count / paginated_by)
+        page_range = range(1, total_page + 1)
+        start_index = paginated_by * (page - 1)
+        end_index = paginated_by * page
+        posts = posts[start_index:end_index]
+
+        users = User.objects.all()
+        return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, \
+                                                       'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
 
     raise Http404
 
@@ -62,52 +106,38 @@ def post_detail(request, post_id):
             return render(request, 'post/post_detail.html', {'object':post, 'comments':comments, 'comment_form':comment_form, 'group':group, 'group_list':group_list, 'users':users})
     raise Http404
 
+
 def post_delete(request, post_id):
     post = Post.objects.get(pk=post_id)
     # 로그인한 유저가 작성자일 경우, 해당 포스트 삭제 버튼 보이도록
     # ajax post요청일 경우, detail 페이지로 이동
-    if request.method == "POST":
-        group_id = request.POST.get('group_id', None)
-        group = Group.objects.get(id=group_id)
-        group_list = request.user.members_groups.all()
-        comment_form = CommentForm()
-        comments = post.comments.all()
-        users = User.objects.all()
+    if request.is_ajax():
         if post.author != request.user and not request.user.is_staff:
             messages.warning(request, '삭제할 권한이 없습니다.')
-            return render(request, 'post/post_detail.html', {'object':post, 'comments':comments, \
-            'comment_form':comment_form, 'group':group, 'group_list':group_list, 'users':users})
+            return JsonResponse({'noAuthor':True})
+        post.delete()
+        return JsonResponse({'works':True})
 
-    # ajax 요청이 아닌경우, delete 페이지로 이동
-    group_id = request.GET.get('group_id', None)
-    group = Group.objects.get(id=group_id)
-    group_list = request.user.members_groups.all()
-    users = User.objects.all()
-    return render(request, 'post/post_delete.html', {'group':group, 'group_list':group_list, 'users':users})
+    # ajax 요청이 아닌경우, Http404 에러 발생
+    raise Http404
+
 
 def post_update(request, post_id):
-    if request.method == "POST":
+    if request.is_ajax():
         post = Post.objects.get(pk=post_id)
-        form = PostForm(request.POST, request.FILES, instance=post)
-        group_id = request.POST.get('group_id', None)
-        group = Group.objects.get(id=group_id)
-        group_list = request.user.members_groups.all()
-        comment_form = CommentForm()
-        comments = post.comments.all()
-        users = User.objects.all()
-        if form.is_valid():
-            post = form.save()
-            return render(request, 'post/post_detail.html', {'object': post, 'comments': comments, \
-            'comment_form': comment_form, 'group': group, 'group_list': group_list, 'users':users})
+        text = request.POST.get('text')
 
-    else:
-        post = Post.objects.get(pk=post_id)
-        form = PostForm(instance=post)
-        group_id = request.GET.get('extore', None)
-        group = Group.objects.get(id=group_id)
-        group_list = request.user.members_groups.all()
-        users = User.objects.all()
-    return render(request, 'post/post_update.html', {'form':form, 'group':group, 'group_list':group_list, 'users':users})
+        # 수정 요청한 유저가 글 작성자 혹은 staff 가 아닌 경우
+        if request.user != post.author and not request.user.is_staff:
+            return JsonResponse({'noAuthor':True})
+
+        # 수정 요청한 유저가 글 작성자 혹우은 staff인 경우
+        post.text = text
+        post.save()
+        return JsonResponse({'works': True})
+
+    # ajax 요청이 아닌 경우
+    raise Http404
 
 
 # 태그 기능 관련
