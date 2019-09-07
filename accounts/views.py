@@ -50,8 +50,16 @@ def user_signup(request):
             return JsonResponse({'phoneNumberExists':True})
 
         # phoneNumber 길이가 적합하지 않은 경우
-        if len(request.POST.get('phoneNumber'))<10 or len(request.POST.get('phoneNumber'))>11:
+        try:
+            int(request.POST.get('phoneNumber'))
+            pass
+        except ValueError:
+            return JsonResponse({'notNumber':True})
+
+        if len(request.POST.get('phoneNumber'))>11:
             return JsonResponse({'tooLongNumber':True})
+        if len(request.POST.get('phoneNumber')) < 10:
+            return JsonResponse({'tooShortNumber':True})
 
         # realName에 영문자, 숫자, 특수문자가 존재하는 경우
         wrong_str = re.compile('[a-zA-Z0-9-=+,#/\?:^$.@*\"※~&%ㆍ!』\\‘|\(\)\[\]\<\>`\'…》]')
@@ -184,6 +192,10 @@ def user_invite(request):
 
         # 초대 요청한 익스토어 그룹명이 title인 Group 객체를 group 변수가 참조
         group = Group.objects.get(title=extore_title)
+
+        if not request.user in group.member.all():
+            raise Http404
+
         # InviteStatus 객체 중, group_id가 group.id와 일치하는 객체를 invite_status 변수(queryset 형태)가 참조
         invite_status = InviteStatus.objects.filter(group_id=group.id)
 
@@ -234,6 +246,8 @@ def user_accept(request, inviteStatus_id):
         if request.POST.get('result', None) == '승락':
             # InviteStatus id 데이터 전달받아야 함
             invite_status = InviteStatus.objects.get(pk=inviteStatus_id)
+            if not request.user in invite_status.invited.all():
+                raise Http404
             invite_status.invited.remove(request.user)
 
             # InviteDate 객체중, 초대 승낙한 그룹 id와 유저 id가 일치하는 객체를 삭제
@@ -254,6 +268,8 @@ def user_accept(request, inviteStatus_id):
 
         elif request.POST.get('result', None) == '거부':
             invite_status = InviteStatus.objects.get(pk=inviteStatus_id)
+            if not request.user in invite_status.invited.all():
+                raise Http404
             invite_status.invited.remove(request.user)
 
             # InviteDate 객체중, 초대 승낙한 그룹 id와 유저 id가 일치하는 객체를 삭제

@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'g@u*q%^_a%afv679v9e+(_#1t9fuz3+y40ilax1stunw4@44za'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -88,11 +88,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+# sqlite3
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 
+# postgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'dbextore',
+        'USER': 'jonus',
+        'PASSWORD': secret.aws_db_info['password'],
+        'HOST': 'db-extore.ctj0650ag7ks.ap-northeast-2.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -129,15 +141,37 @@ USE_L10N = True
 
 USE_TZ = False
 
+# AWS S3 연동
+AWS_ACCESS_KEY_ID = secret.aws_info['id']
+AWS_SECRET_ACCESS_KEY = secret.aws_info['key']
+
+AWS_REGION = 'ap-northeast-2'
+AWS_STORAGE_BUCKET_NAME = 'extorestatic.jonus.co.kr'
+
+AWS_S3_CUSTOM_DOMAIN = '%s' % AWS_STORAGE_BUCKET_NAME
+
+AWS_S3_OBJECT_PARAMETERS = {
+  'CacheControl': 'max-age=86400',
+}
+
+AWS_DEFAULT_ACL = 'public-read'
+AWS_LOCATION = 'static/'
+
+AWS_S3_SECURE_URLS = False
+
+STATIC_URL = 'http://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'config.asset_storage.MediaStorage'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # debug toolbar 설정
 INTERNAL_IPS = ['127.0.0.1']
@@ -172,7 +206,7 @@ AUTHENTICATION_BACKENDS = [
 
 # ckeditor 설정
 CKEDITOR_UPLOAD_PATH = 'wysiwyg/'
-CKEDITOR_RESTRICT_BY_USER = True
+CKEDITOR_RESTRICT_BY_USER = False
 
 # ckeditor를 S3로 연동할 경우
 # AWS_QUERYSTRING_AUTH = False
@@ -203,9 +237,6 @@ LOCATION_FIELD = {
         ),
     },
 }
-
-
-
 
 
 from django.urls import reverse_lazy

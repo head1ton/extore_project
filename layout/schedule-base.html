@@ -69,7 +69,7 @@
     }
 
     .group-list {
-        font-size: 15px;
+        font-size: 14px;
         color: slategrey;
     }
 
@@ -662,101 +662,6 @@
                     }
                 });
             }
-        });
-
-        // 회원가입, 로그인 창 닫기
-        $('.btn-close').click(function(e){
-            location.reload();
-        });
-
-        // 회원가입 진행
-        $('.btn-signup').click(function(e){
-            e.preventDefault();
-            var url = $(this).attr('href');
-            var form = $('#user-signup')[0];
-            var formData = new FormData(form);
-
-            formData.set("profile", $('#signup-user-profile')[0].files[0]);
-            var realName = $('#signup-user-name').val();
-            $.ajax({
-                url : url,
-                enctype: 'multipart/form-data',
-                processData: false,
-                contentType: false,
-                cache: false,
-                type: "POST",
-                data: formData,
-            }).done(function(data){
-                if(data.works){
-                    alert('환영합니다 '+realName+'님\n'+'회원가입이 성공적으로 완료되었습니다.');
-                } else if(data.noEmail) {
-                    alert('이메일 주소를 입력해주세요.');
-                } else if(data.noRealName) {
-                    alert('이름을 입력해주세요.');
-                } else if(data.noPassword) {
-                    alert('비밀번호를 입력해주세요.');
-                } else if(data.noPassword2) {
-                    alert('비밀번호를 확인해주세요.');
-                } else if(data.noProfile) {
-                    alert('프로필 사진을 등록해주세요.');
-                } else if(data.noPhoneNumber) {
-                    alert('휴대폰 번호를 입력해주세요.');
-                } else if(data.wrongEmail) {
-                    alert('올바른 이메일 주소 형식이 아닙니다.');
-                } else if(data.emailExists){
-                    alert('입력하신 이메일이 이미 등록되어있습니다.');
-                } else if(data.phoneNumberExists){
-                    alert('입력하신 휴대폰 번호가 이미 등록되어있습니다.');
-                } else if(data.tooLongNumber){
-                    alert('입력하신 휴대폰 번호는 허용 길이를 초과합니다.');
-                } else if(data.wrongName){
-                    alert('이름엔 영문자, 숫자, 특수문자가 허용되지 않습니다.');
-                } else if(data.tooLongName){
-                    alert('입력하신 이름은 허용 길이를 초과합니다.');
-                } else if(data.shortLength){
-                    alert('비밀번호는 최소 8자리 이상이어야 합니다.');
-                } else if(data.wrongCombination){
-                    alert('비밀번호는 최소 영어 소문자/대문자, 숫자, 특수문자 중,\n 3개 이상 조합으로 구성되어야 합니다.');
-                } else if(data.notMatch){
-                    alert('재입력한 비밀번호가 이전 비밀번호와 일치하지 않습니다.');
-                } else {
-                    alert('정상 요청이 아닙니다.');
-                }
-            });
-        });
-
-        // 로그인 진행
-        $('.btn-login').click(function(e){
-            e.preventDefault();
-            var url = $(this).attr('href');
-            var form = $('#user-login')[0];
-            var formData = new FormData(form);
-
-            $.ajax({
-                url : url,
-                enctype: 'multipart/form-data',
-                processData: false,
-                contentType: false,
-                cache: false,
-                method : 'POST',
-                data : formData,
-            }).done(function(data){
-                if(data.works){
-                    location.reload();
-                } else if(data.wrongInformation) {
-                    alert('입력된 정보와 일치하는 회원 정보가 없습니다.');
-                    $('#login-user-email').val("");
-                    $('#login-user-password').val("");
-
-                } else if(data.noEmail) {
-                    alert('이메일 주소를 입력해주세요.');
-                    $('#login-user-password').val("");
-                } else if(data.noPassword) {
-                    alert('비밀번호를 입력해주세요.');
-                } else {
-                    alert('정상 요청이 아닙니다.');
-                }
-            });
         });
 
 

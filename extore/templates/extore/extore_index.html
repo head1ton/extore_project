@@ -129,7 +129,7 @@
       </div>
     </div>
 
-    <!-- exoterCreate Modal -->
+    <!-- extoreCreate Modal -->
     <div class="modal fade" id="extoreCreate" tabindex="-1" role="dialog" aria-labelledby="extoreCreateLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content" style="z-index:1000;">
@@ -217,7 +217,7 @@ $(function(){
 
     // carousel 이미지 변경되는 시간 간격 설정
     $('.carousel').carousel({
-      interval: 4000
+      interval: 3000
     })
 
     // 익스토어 이름 중복 체크
@@ -271,10 +271,12 @@ $(function(){
             if(data.overlap){
                 alert('\n이미 사용중인 이름입니다. 다른 이름으로 입력해주세요.');
             } else if(data.works) {
-                alert("'"+extoreTitle+"' "+'익스토어를 생성하였습니다.');
+                alert("\n'"+extoreTitle+"' "+'익스토어를 생성하였습니다.');
                 location.reload();
+            } else if(data.tooLongTitle) {
+                alert('\n익스토어명은 띄어쓰기를 포함해 10자리를 초과할 수 없습니다.');
             } else if(data.neither_data){
-                alert('\n생성할 익스토어 이름을 입력해주시고, \n배경 이미지 파일을 업로드해주세요.');
+                alert('\n생성할 익스토어 이름을 입력해주시고, 배경 이미지 파일을 업로드해주세요.');
             } else if(data.no_extoreTitle){
                 alert('\n생성할 익스토어 이름을 입력해주세요.');
             } else if(data.no_extoreImage){

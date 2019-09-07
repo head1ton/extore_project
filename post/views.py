@@ -23,8 +23,26 @@ def post_create(request):
             posts = Post.objects.filter(extore_id=group_id)
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
+
+            page = int(request.GET.get('page', 1))
+            paginated_by = 3
+
+            search_type = request.POST.getlist('search_type', None) if request.method == "POST" else request.GET.get('searchType', None)
+
+            search_q = None
+            search_key = request.POST.get('search_key', None) if request.method == "POST" else request.GET.get('searchKey', None)
+
+            total_count = len(posts)
+            total_page = math.ceil(total_count / paginated_by)
+            page_range = range(1, total_page + 1)
+            start_index = paginated_by * (page - 1)
+            end_index = paginated_by * page
+            posts = posts[start_index:end_index]
+
             users = User.objects.all()
-            return render(request, 'post/post_list.html', {'object_list':posts, 'group':group, 'group_list':group_list, 'users':users})
+            return render(request, 'post/post_list.html', {'object_list': posts, 'group': group, \
+                                                           'group_list': group_list, 'users': users,
+                                                           'total_page': total_page, 'page_range': page_range})
     else:
         group_id = request.GET.get('extore', None)
         if group_id:

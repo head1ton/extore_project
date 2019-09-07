@@ -6,8 +6,8 @@ from accounts.models import User
 
 
 class Group(models.Model):
-    title = models.CharField(max_length=15)
-    slug = models.SlugField(max_length=50, unique=True, allow_unicode=True, db_index=True, default="")
+    title = models.CharField(max_length=10)
+    slug = models.SlugField(max_length=30, unique=True, allow_unicode=True, db_index=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_groups')
     member = models.ManyToManyField(User, related_name='members_groups', blank=True)
     image = models.ImageField(upload_to='group_images/%Y/%m/%d', blank=True, null=True)
@@ -15,7 +15,7 @@ class Group(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.slug = slugify(self.title)
+            self.slug = slugify(self.title, allow_unicode=True)
         super(Group, self).save(*args, **kwargs)
 
     def __str__(self):

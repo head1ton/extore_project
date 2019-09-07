@@ -26,7 +26,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', include('extore.urls')),
     path('admin/', admin.site.urls),
-    # 라이브 상태일 때 serve 뷰 사용하여 연결
+    # 라이브 상태일 때 S3 연동 없이, serve 뷰 사용하여 media 연결
     # re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
@@ -36,5 +36,5 @@ if settings.DEBUG:
         path('debug/', include(debug_toolbar.urls)),
     ]
 
-from django.conf.urls.static import static
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# from django.conf.urls.static import static
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

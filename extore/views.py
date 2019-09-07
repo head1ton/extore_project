@@ -1,7 +1,7 @@
 import math
 import random
 
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.utils.text import slugify
 from django.shortcuts import render
 from .models import Group
@@ -30,6 +30,8 @@ def group_detail(request, group_id):
     if request.method == 'GET':
         # group = the extore to see detail
         group = Group.objects.get(id=group_id)
+        if not request.user in group.member.all():
+            raise Http404
         # group_list = extore list
         group_list = request.user.members_groups.all()
         posts = Post.objects.filter(extore_id=group_id)
@@ -49,7 +51,7 @@ def group_detail(request, group_id):
                                                        'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
 
 
-# 익스토어 삭제
+# 익스토어 탈퇴
 def group_delete(request, group_id):
     is_ajax = request.POST.get('is_ajax', None)
     if is_ajax:
@@ -90,12 +92,17 @@ def group_delete(request, group_id):
 
 # 익스토어 생성
 def group_create(request):
+    if not request.user.is_authenticated:
+        raise Http404
     if request.is_ajax():
-        # extoreTitle, extoreImage 데이터 모두 전달받지 못한 경
-        if request.POST.get('extoreTitle', None) == "" and request.FILES.get('extoreImage', None) is None:
+        # extoreTitle, extoreImage 데이터 모두 전달받지 못한 경우
+        if request.POST.get('extoreTitle') == "" and request.FILES.get('extoreImage', None) is None:
             return JsonResponse({'neither_data':True})
+        # extoreTitle 길이가 10자리 초과한 경우
+        elif len(request.POST.get('extoreTitle')) > 10:
+            return JsonResponse({'tooLongTitle':True})
         # extoreTitle 데이터만 전달받지 못한 경우
-        elif request.POST.get('extoreTitle', None) == "":
+        elif request.POST.get('extoreTitle') == "":
             return JsonResponse({'no_extoreTitle':True})
         # extoreImage 데이터만 전달받지 못한 경우
         elif request.FILES.get('extoreImage', None) is None:
@@ -103,10 +110,9 @@ def group_create(request):
         # extoreTitle, extoreImage 데이터 모두 전달받은 경우
         else:
             extore_title = request.POST.get('extoreTitle')
-            extore_slug = slugify(extore_title, allow_unicode=True)
 
             # request에서 전달받은 title이 기존 익스토어 이름과 중복되는지 확인
-            if Group.objects.filter(slug=extore_slug).exists():
+            if Group.objects.filter(title=extore_title).exists():
                 return JsonResponse({'overlap':True})
 
             # request에서 전달받은 title이 기존 익스토어 이름과 중복안되는 경우

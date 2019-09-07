@@ -10,7 +10,7 @@ from .models import *
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['image', 'text', 'tags', 'city', 'location', 'created']
+        fields = ['image', 'text', 'tags', 'created'] # city, location
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -19,10 +19,10 @@ class PostForm(forms.ModelForm):
         self.fields['text'].widget.attrs = {'class':'form-control','placeholder':'내용을 입력하세요.'}
         self.fields['tags'].label = ''
         self.fields['tags'].widget.attrs = {'class':'form-control','placeholder': '태그를 입력하세요.'}
-        self.fields['city'].label = ''
-        self.fields['city'].widget.attrs = {'class':'form-control','placeholder': '위치를 추가하세요.(ex. Seoul)'}
-        self.fields['location'].label = ''
-        self.fields['location'].widget.attrs = {'class':'form-control','placeholder':'위도,경도'}
+        # self.fields['city'].label = ''
+        # self.fields['city'].widget.attrs = {'class':'form-control','placeholder': '위치를 추가하세요.(ex. Seoul)'}
+        # self.fields['location'].label = ''
+        # self.fields['location'].widget.attrs = {'class':'form-control','placeholder':'위도,경도'}
         self.fields['created'].widget.attrs = {'class':'form-control','placeholder':'ex) 2019-06-26'}
         
 

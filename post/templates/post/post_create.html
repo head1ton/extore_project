@@ -4,7 +4,7 @@
 
 {% block content %}
 <div id="post-list">
-    <form action="" method="post" enctype="multipart/form-data">
+    <form style="width:800px;" action="" method="post" enctype="multipart/form-data">
         <input type="hidden" name="group_id" value="{{group.id}}">
         {% csrf_token %}
         {{form.media}}

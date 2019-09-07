@@ -16,19 +16,25 @@
         </div>
         <div style="width:1000px; margin:0 auto; text-align:center;">
             <div style="display: inline-block;">
+                {% if object_list %}
                 {% for object in object_list %}
-                    <div class="card" style="margin: 15px; width:18rem; float:left;">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">{{object.title}}</li>
-                            <li class="list-group-item">{{object.start}}</li>
-                            <li class="list-group-item">{{object.end}}</li>
-                        </ul>
-                        <div class="card-body" style="text-align:center;">
-                            <a href="{% url 'schedule:update' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Update</a>
-                            <a href="{% url 'schedule:delete' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Delete</a>
-                        </div>
+                <div class="card" style="margin: 15px; width:18rem; float:left;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">{{object.title}}</li>
+                        <li class="list-group-item">{{object.start}}</li>
+                        <li class="list-group-item">{{object.end}}</li>
+                    </ul>
+                    <div class="card-body" style="text-align:center;">
+                        <a href="{% url 'schedule:update' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Update</a>
+                        <a href="{% url 'schedule:delete' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Delete</a>
                     </div>
+                </div>
                 {% endfor %}
+                {% else %}
+                <div style="height:558px; line-height:558px; text-align:center;">
+                    <div style="display:inline-block; line-height:558px; vertical-align:middle;"> 게시물이 없습니다.</div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -13,8 +13,8 @@ class Post(models.Model):
     image = models.ImageField(upload_to='timeline_photo/%Y/%m/%d')
     text = models.TextField()
     tags = TagField(blank=True)
-    city = models.CharField(max_length=100, blank="")
-    location = PlainLocationField(based_fields=['city'], zoom=7) # default="37.54965563216749,127.0469284057617"
+    city = models.CharField(max_length=100, blank=True, null=True)
+    location = PlainLocationField(based_fields=['city'], zoom=7, blank=True, null=True) # default="37.54965563216749,127.0469284057617"
     created = models.DateTimeField(auto_now_add=False)
     updated = models.DateTimeField(auto_now=True)
     like = models.ManyToManyField(User, related_name="like_post", blank=True)

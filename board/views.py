@@ -21,15 +21,29 @@ def board_create(request):
         form.instance.extore_id = group_id
         group = Group.objects.get(pk=group_id)
         group_list = request.user.members_groups.all()
-        users = User.objects.all()
+
         if form.is_valid():
             form.save()
+
+            page = int(request.GET.get('page', 1))
+            paginated_by = 3
             board_list = Board.objects.filter(extore_id=group_id)
-            num_in_turn = []
-            for i in range(len(board_list)):
-                num_in_turn.append(i+1)
-                num_in_turn.sort(reverse=True)
-            return render(request, 'board/board_list.html', {'board_list':board_list, 'group':group, 'group_list':group_list, 'user':users, 'num_in_turn':num_in_turn})
+            total_count = len(board_list)
+            total_page = math.ceil(total_count / paginated_by)
+            page_range = range(1, total_page + 1)
+            start_index = paginated_by * (page - 1)
+            end_index = paginated_by * page
+            board_list = board_list[start_index:end_index]
+
+            users = User.objects.all()
+
+            current_top_num = len(Board.objects.filter(extore_id=group_id)) - paginated_by * (page - 1)
+
+            return render(request, 'board/board_list.html', \
+                          {'board_list': board_list, 'group': group, 'group_list': group_list, \
+                           'users': users, 'total_page': total_page, 'page_range': page_range,
+                           'currentTopNum': current_top_num})
+
         raise Http404
     # 게시물 작성 화면 이동 시,
     else:
@@ -39,7 +53,7 @@ def board_create(request):
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
             users = User.objects.all()
-            return render(request, 'board/board_create.html', {'form': form, 'group': group, 'group_list': group_list, 'user': users})
+            return render(request, 'board/board_create.html', {'form': form, 'group': group, 'group_list': group_list, 'users': users})
         raise Http404
 
 
@@ -114,6 +128,10 @@ def board_detail(request, board_id):
     if request.method == 'GET':
         board = Board.objects.get(id=board_id)
         group_id = request.GET.get('extore', None)
+
+        if not request.user in Group.objects.get(pk=group_id).member.all():
+            raise Http404
+
         if group_id:
             group = Group.objects.get(id=group_id)
             group_list = request.user.members_groups.all()
@@ -127,8 +145,11 @@ def board_detail(request, board_id):
 
 
 def board_update(request, board_id):
+    board = get_object_or_404(Board, pk=board_id)
+    if request.user != board.author and not request.user.is_staff:
+        raise Http404
+
     if request.method == 'POST':
-        board = get_object_or_404(Board, pk=board_id)
         group_id = request.POST.get('group_id', None)
         form = BoardForm(request.POST, request.FILES, instance=board)
         form.instance.author_id = request.user.id
@@ -157,7 +178,6 @@ def board_update(request, board_id):
                            'users':users, 'total_page':total_page, 'page_range':page_range, 'currentTopNum':current_top_num})
 
     else:
-        board = get_object_or_404(Board, pk=board_id)
         form = BoardForm(instance=board)
         group_id = request.GET.get('extore', None)
         if group_id:
@@ -185,6 +205,8 @@ def board_delete(request, board_id):
 def comment_create(request, board_id):
     is_ajax = request.POST.get('is_ajax')
     board = Board.objects.get(pk=board_id)
+    if not request.user in board.extore.member.all():
+        raise Http404
     comment_form = CommentForm(request.POST)
     comment_form.instance.nickname_id = request.user.id
     comment_form.instance.board_id = board_id
@@ -200,6 +222,8 @@ def comment_create(request, board_id):
 
 def comment_list(request, board_id):
     board = Board.objects.get(id=board_id)
+    if not request.user in board.extore.member.all():
+        raise Http404
     comments = board.comments.all()
 
     return render(request, 'board/comment_list', {'comments':comments})
@@ -209,6 +233,8 @@ def comment_like(request, comment_id):
     is_ajax = request.GET.get('is_ajax') if 'is_ajax' in request.GET else request.POST.get('is_ajax',False)
     comment = Comment.objects.get(id=comment_id)
     board = Board.objects.get(id=comment.board.id)
+    if not request.user in board.extore.member.all():
+        raise Http404
     if is_ajax:
         comment = Comment.objects.get(pk=comment_id)
         comment.like = comment.like + 1
@@ -225,7 +251,7 @@ def comment_update(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
     board = get_object_or_404(Board, pk=comment.board.id)
 
-    if request.user != comment.nickname:
+    if request.user != comment.nickname and not request.user.is_staff:
         messages.warning(request, "권한 없음")
         return redirect(board)
 
