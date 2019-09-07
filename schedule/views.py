@@ -1,7 +1,9 @@
+import math
 from urllib.parse import urlparse
 
-from django.shortcuts import render
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.db.models import Q
+from django.shortcuts import render, get_list_or_404
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from .models import CalendarEvent
 from extore.models import Group
 from .util import events_to_json, calendar_options
@@ -74,20 +76,25 @@ def schedule_create(request):
         form.instance.author_id = request.user.id
         form.instance.extore_id = request.POST.get('group_id', None)
 
-        if form.is_valid():
-            schedule = form.save()
-            group_id = schedule.extore_id
+        if len(request.POST.get('title')) > 60:
+            return JsonResponse({'tooLongTitle':True})
 
-            return redirect(reverse('schedule:list', args=[group_id]))
+        if form.is_valid():
+            # schedule = form.save()
+            # group_id = schedule.extore_id
+            # return redirect(reverse('schedule:list', args=[group_id]))
+            form.save()
+            return JsonResponse({'works': True})
 
         else:
-            group_id = form.instance.extore_id
-            group = Group.objects.get(id=group_id)
-            group_list = request.user.members_groups.all()
-            users = User.objects.all()
-
-            messages.warning(request, '입력이 올바르지 않습니다.')
-            return render(request, 'schedule/schedule_create.html', {'form':form, 'group':group, 'group_list':group_list, 'users':users})
+            return JsonResponse({'notValid':True})
+            # group_id = form.instance.extore_id
+            # group = Group.objects.get(id=group_id)
+            # group_list = request.user.members_groups.all()
+            # users = User.objects.all()
+            #
+            # messages.warning(request, '입력이 올바르지 않습니다.')
+            # return render(request, 'schedule/schedule_create.html', {'form':form, 'group':group, 'group_list':group_list, 'users':users})
 
     else:
         group_id = request.GET.get('extore', None)
@@ -107,8 +114,50 @@ def schedule_list(request, group_id):
         schedules = CalendarEvent.objects.filter(extore_id=group_id)
         group = Group.objects.get(id=group_id)
         group_list = request.user.members_groups.all()
+
+        page = int(request.GET.get('page', 1))
+        paginated_by = 6
+
+        search_type = request.POST.getlist('search_type', None) if request.method == "POST" else request.GET.get(
+            'searchType', None)
+
+        search_q = None
+        search_key = request.POST.get('search_key', None) if request.method == "POST" else request.GET.get('searchKey',
+                                                                                                           None)
+
+        # 검색어 입력한 경우
+        if search_key:
+            if 'title' in search_type:
+                temp_q = Q(title__icontains=search_key)
+                search_q = search_q | temp_q if search_q else temp_q
+            if 'realName' in search_type:
+                last_name = search_key[0]
+                first_name = search_key[1:]
+                temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
+                search_q = search_q | temp_q if search_q else temp_q
+
+            schedules = schedules.filter(search_q)
+            total_count = len(schedules)
+            total_page = math.ceil(total_count / paginated_by)
+            page_range = range(1, total_page + 1)
+            start_index = paginated_by * (page - 1)
+            end_index = paginated_by * page
+            users = User.objects.all()
+            return render(request, 'schedule/schedule_list.html', \
+                          {'object_list': schedules, 'group': group, 'group_list': group_list, \
+                           'users': users, 'total_page': total_page, 'page_range': page_range, 'searchKey': search_key,
+                           'searchType': search_type})
+        # 검색어 입력하지 않고 목록 조회하는 경우
+        total_count = len(schedules)
+        total_page = math.ceil(total_count / paginated_by)
+        page_range = range(1, total_page + 1)
+        start_index = paginated_by * (page - 1)
+        end_index = paginated_by * page
+        schedules = schedules[start_index:end_index]
+
         users = User.objects.all()
-        return render(request, 'schedule/schedule_list.html', {'object_list':schedules, 'group':group, 'group_list':group_list, 'users':users})
+        return render(request, 'schedule/schedule_list.html', {'object_list': schedules, 'group':group, \
+                                                       'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
     raise Http404
 
 
@@ -159,8 +208,16 @@ def schedule_delete(request, calendarevent_id):
             return redirect(reverse('schedule:list', args=[group_id]))
 
     else:
-        group_id = request.GET.get('extore', None)
-        group = Group.objects.get(id=group_id)
-        group_list = request.user.members_groups.all()
-        users = User.objects.all()
-    return render(request, 'schedule/schedule_delete.html', {'group':group, 'group_list':group_list, 'users':users})
+        if request.is_ajax():
+            schedule = CalendarEvent.objects.get(pk=calendarevent_id)
+            if request.user != schedule.author and not request.user.is_staff:
+                return JsonResponse({'notAuthor':True})
+            schedule.delete()
+            return JsonResponse({'works': True})
+
+        else:
+            group_id = request.GET.get('extore', None)
+            group = Group.objects.get(id=group_id)
+            group_list = request.user.members_groups.all()
+            users = User.objects.all()
+            return render(request, 'schedule/schedule_delete.html', {'group':group, 'group_list':group_list, 'users':users})

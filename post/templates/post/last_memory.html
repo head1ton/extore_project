@@ -7,9 +7,10 @@
     #show-year {
         width:300px;
         height:100%;
-        padding: 30px 0 0 100px;
         text-align: center;
-        float:left;
+        position: relative;
+        top: 50px;
+        float:right;
     }
     #show-year-inner {
         display: inline-block;
@@ -82,7 +83,6 @@
 {% if object_dict %}
 <div id="show-year">
     <div id="show-year-inner">
-
         <p style="margin-bottom:5px; position:relative; left:-13px; color:rgb(130,130,130);">year</p>
             {% for keys, values in object_dict.items %}
                 <div class="show-year" style="height:60px; line-height:60px;">
@@ -140,7 +140,16 @@
 {% block extra_script %}
 <script type="text/javascript">
 $(function(){
+	var floatPosition = parseInt($("#show-year").css('top'));
 
+	$(window).scroll(function() {
+		var scrollTop = $(window).scrollTop();
+		var newPosition = scrollTop + floatPosition + "px";
+
+		$("#show-year").stop().animate({
+			"top" : newPosition
+		}, 300);
+	}).scroll();
 });
 </script>
 {% endblock %}

@@ -12,7 +12,7 @@
         <div class="col"></div>
         <div class="'col-sm-8 col-md-8 col-lg-8">
             <div class="form-group">
-                <form action="" method="post">
+                <form action="" method="post" id="schedule-create">
                     <input type="hidden" name="group_id" value="{{group.id}}">
                     {% csrf_token %}
                     <ul style="list-style:none;">
@@ -33,10 +33,35 @@
 {% endblock %}
 
 {% block extra_script %}
-
 <script>
 $(function () {
-
+    $('#schedule-create').submit(function(e){
+        e.preventDefault();
+        var url = "{% url 'schedule:create' %}"
+        var form = $(this)[0]
+        var formData = new FormData(form)
+        $.ajax({
+            url : url,
+            processData: false,
+            contentType: false,
+            cache: false,
+            type: "POST",
+            data: formData,
+        }).done(function(data){
+            if(data.works){
+                alert('일정을 생성하였습니다.');
+                window.location.href = "{% url 'schedule:list' group.id %}"
+            } else if(data.tooLongTitle){
+                alert('내용은 60자를 초과할 수 없습니다.');
+            } else if(data.notValie){
+                alert('입력 내용이 올바르지 않습니다.');
+            } else {
+                alert('정상 요청이 아닙니다.');
+            }
+        }).fail(function(xhr, textStatus, errorThrown){
+            alert(xhr.responseText);
+        });
+    });
 });
 </script>
 {% endblock %}

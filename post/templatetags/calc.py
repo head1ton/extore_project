@@ -45,3 +45,9 @@ def same_invitation_time_since(inviteStatus, inviteDates):
 @register.filter
 def list_index(current_top_num,  forloop):
     return (current_top_num - forloop)
+
+@register.filter
+def author_or_staff(user, author):
+    if user.is_staff or user == author:
+        return True
+    return False

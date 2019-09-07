@@ -7,35 +7,122 @@
     .screen {
         text-align: center;
     }
+    .profiles {
+        height: 68px;
+        line-height: 68px;
+        list-style-type: none;
+        text-align: left;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-        <div style="width:880px; display:inline-block; text-align:right;">
-            <a href="{% url 'schedule:index' %}?extore={{group.id}}" class="btn btn-primary">캘린더 보기</a>
-        </div>
-        <div style="width:1000px; margin:0 auto; text-align:center;">
-            <div style="display: inline-block;">
-                {% if object_list %}
-                {% for object in object_list %}
-                <div class="card" style="margin: 15px; width:18rem; float:left;">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">{{object.title}}</li>
-                        <li class="list-group-item">{{object.start}}</li>
-                        <li class="list-group-item">{{object.end}}</li>
-                    </ul>
-                    <div class="card-body" style="text-align:center;">
-                        <a href="{% url 'schedule:update' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Update</a>
-                        <a href="{% url 'schedule:delete' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Delete</a>
+{% load calc %}
+<div style="width:880px; display:inline-block; text-align:right;">
+    <a href="{% url 'schedule:index' %}?extore={{group.id}}" class="btn btn-primary">캘린더 보기</a>
+</div>
+<div style="width:1000px; margin:0 auto; text-align:center;">
+    <div style="display: inline-block;">
+        {% if object_list %}
+        {% for object in object_list %}
+        <div class="card schedule-div" style="margin: 15px; width:18rem; float:left;">
+            <ul class="list-group list-group-flush">
+                <li class="profiles">
+                    <div class="img-profile" style="background-image:url({{object.author.profile.url}})"></div>
+                    <a class="a-tag name-profile" >{{object.author.last_name}}{{object.author.first_name}}</a>
+                </li>
+                <li class="list-group-item" style="height:150px;">
+                    <div style="height:120px;line-height:120px;display:block;">
+                        <div style="line-height:normal;vertical-align:middle;display:inline-block;">
+                            {{object.title}}
+                        </div>
                     </div>
-                </div>
-                {% endfor %}
+                </li>
+                <li class="list-group-item">{{object.start}}</li>
+                <li class="list-group-item">{{object.end}}</li>
+            </ul>
+            {% if user|author_or_staff:object.author %}
+            <div class="card-body" style="text-align:center;">
+                <a href="{% url 'schedule:update' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link">Update</a>
+                <a href="{% url 'schedule:delete' object.id %}?extore={{group.id}}" style="margin:0 35px;" class="card-link schedule-delete">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="height:558px; line-height:558px; text-align:center;">
+            <div style="display:inline-block; line-height:558px; vertical-align:middle;"> 게시물이 없습니다.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% for page in page_range %}
+                {% if searchKey %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'schedule:list' group.id %}?searchKey={{searchKey}}&searchType={{searchType}}&page={{page}}">{{page}}</a>
+                </li>
                 {% else %}
-                <div style="height:558px; line-height:558px; text-align:center;">
-                    <div style="display:inline-block; line-height:558px; vertical-align:middle;"> 게시물이 없습니다.</div>
-                </div>
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'schedule:list' group.id %}?page={{page}}">{{page}}</a>
+                </li>
                 {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <form action="{% url 'schedule:list' group.id %}" method="post" id="search_form">
+        {% csrf_token %}
+        <div class="form-row align-items-center justify-content-center">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="realName" name="search_type" checked>
+                <label class="form-check-label" for="inlineCheckbox1">작성자</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="title" name="search_type">
+                <label class="form-check-label" for="inlineCheckbox3">내용</label>
             </div>
         </div>
-    </div>
+        <div class="form-row align-items-center justify-content-center">
+            <div class="col-sm-3 my-1">
+                <input type="text" class="form-control" placeholder="검색어" name="search_key">
+            </div>
+
+            <div class="col-auto my-1">
+                <button type="submit" class="btn btn-primary">검색하기</button>
+            </div>
+        </div>
+    </form>
+
+
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+$(function(){
+    $('.schedule-delete').click(function(e){
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var check = confirm('해당 일정을 삭제하시겠습니까?');
+        var selected = $(this);
+        if(check == true){
+            $.ajax({
+                url : url,
+            }).done(function(data){
+                if(data.works){
+                    alert('일정이 삭제되었습니다.');
+                    selected.parents('.schedule-div').remove();
+                } else if(data.notAuthor) {
+                    alert('삭제할 권한이 없습니다.');
+                } else {
+                    alert('정상 요청이 아닙니다.');
+                }
+            });
+        }
+    });
+});
+
+</script>
 {% endblock %}

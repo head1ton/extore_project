@@ -89,7 +89,7 @@ def board_list(request):
                 temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
                 search_q = search_q | temp_q if search_q else temp_q
 
-            board_list = get_list_or_404(board_list, search_q)
+            board_list = board_list.filter(search_q)
             total_count = len(board_list)
             total_page = math.ceil(total_count / paginated_by)
             page_range = range(1, total_page + 1)
