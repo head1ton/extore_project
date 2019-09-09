@@ -13,7 +13,6 @@ from extore.models import Group, InviteStatus, InviteDate
 
 # 사용자 회원가입
 def user_signup(request):
-    # Class Based View -> dispatch -> get, post
     if request.is_ajax():
         if request.POST.get('email') == "":
             return JsonResponse({'noEmail':True})
@@ -98,7 +97,7 @@ def user_signup(request):
             return JsonResponse({'notMatch':True})
 
 
-        # 사용자가 작성한 회원가입 내용 형식이 적상인 경우
+        # 사용자가 작성한 회원가입 내용 형식이 정상인 경우
         real_name = request.POST.get('realName')
         email = request.POST.get('email')
         phone_number = request.POST.get('phoneNumber')

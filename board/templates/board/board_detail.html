@@ -47,11 +47,11 @@
                    <div style="padding:5px;">{{board.text|safe}}</div>
                </li>
                <li>
-                   {% ifequal board.author user %}
+                   {% if user|author_or_staff:object.author %}
                    <a class="board-delete" href="{% url 'board:board_delete' board.id %}" style="float:right;">삭제</a>
                    <a class="board-update" href="{% url 'board:board_update' board.id %}?extore={{group.id}}" style="float:right;margin-right:10px;">수정</a>
                    <div class="after-click-update"></div>
-                   {% endifequal %}
+                   {% endif %}
                </li>
            </ul>
            <div style="height:10px; clear:both;"></div>

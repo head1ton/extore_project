@@ -55,6 +55,8 @@ $(function () {
                 alert('내용은 60자를 초과할 수 없습니다.');
             } else if(data.notValie){
                 alert('입력 내용이 올바르지 않습니다.');
+            } else if(data.wrongDateTime){
+                alert('종료일은 시작일보다 나중이어야 합니다.');
             } else {
                 alert('정상 요청이 아닙니다.');
             }

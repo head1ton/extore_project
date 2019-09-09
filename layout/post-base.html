@@ -410,7 +410,7 @@
     </div>
 
     <hr>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white text-center">
+    <nav class="navbar navbar-expand-sm navbar-light bg-white text-center" style="margin-top:30px;">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav extore mr-auto">
                 <li class="nav-item active" style="width:120px; margin-right:10px;">
@@ -521,14 +521,10 @@
         var phoneNumber;
         var userName;
 
-        $('.btn-invite').click(function(e){
-            e.preventDefault();
-        });
 
         $('.userSearch').submit(function(e){
             e.preventDefault();
             url = $(this).attr('action');
-            console.log(url);
             userKeyword = $('input[name=userSearch]').val();
 
             $.ajax({

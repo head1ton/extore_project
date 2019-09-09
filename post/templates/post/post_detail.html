@@ -51,10 +51,10 @@
                         <a class="tags" href="{% url 'post:post_taggedlist' tag.name %}?extore={{group.id}}">#{{tag.name}}</a>
                   {% endfor %}
                   {% endif %}
-                  {% ifequal object.author user %}
+                  {% if user|author_or_staff:object.author %}
                   <a href="{% url 'post:delete' object.id %}" class="post-delete" style="float:right;">삭제</a>
                   <a href="{% url 'post:update' object.id %}" class="post-update" style="float:right; margin-right:10px;">수정</a>
-                  {% endifequal %}
+                  {% endif %}
               </li>
           </ul>
           <div style="height:10px; clear:both;"></div>

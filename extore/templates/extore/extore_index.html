@@ -190,7 +190,6 @@ $(function(){
         e.preventDefault();
         url = $(e.currentTarget).attr('href');
         result = $(e.currentTarget).text();
-        console.log(result);
         keepGoing = confirm(result+'하시겠습니까?');
 
         if(keepGoing == true){

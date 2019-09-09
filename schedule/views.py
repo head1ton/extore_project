@@ -76,6 +76,9 @@ def schedule_create(request):
         form.instance.author_id = request.user.id
         form.instance.extore_id = request.POST.get('group_id', None)
 
+        if request.POST.get('start') >= request.POST.get('end'):
+            return JsonResponse({'wrongDateTime':True})
+
         if len(request.POST.get('title')) > 60:
             return JsonResponse({'tooLongTitle':True})
 
@@ -114,6 +117,7 @@ def schedule_list(request, group_id):
         schedules = CalendarEvent.objects.filter(extore_id=group_id)
         group = Group.objects.get(id=group_id)
         group_list = request.user.members_groups.all()
+        users = User.objects.all()
 
         page = int(request.GET.get('page', 1))
         paginated_by = 6
@@ -135,6 +139,18 @@ def schedule_list(request, group_id):
                 first_name = search_key[1:]
                 temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
                 search_q = search_q | temp_q if search_q else temp_q
+            if len(search_type) == 0:
+                total_count = len(schedules)
+                total_page = math.ceil(total_count / paginated_by)
+                page_range = range(1, total_page + 1)
+                start_index = paginated_by * (page - 1)
+                end_index = paginated_by * page
+                schedules = schedules[start_index:end_index]
+                return render(request, 'schedule/schedule_list.html', {'object_list': schedules, 'group': group, \
+                                                                       'group_list': group_list, 'users': users,
+                                                                       'total_page': total_page,
+                                                                       'page_range': page_range})
+
 
             schedules = schedules.filter(search_q)
             total_count = len(schedules)
@@ -142,11 +158,12 @@ def schedule_list(request, group_id):
             page_range = range(1, total_page + 1)
             start_index = paginated_by * (page - 1)
             end_index = paginated_by * page
-            users = User.objects.all()
+            schedules = schedules[start_index:end_index]
             return render(request, 'schedule/schedule_list.html', \
                           {'object_list': schedules, 'group': group, 'group_list': group_list, \
                            'users': users, 'total_page': total_page, 'page_range': page_range, 'searchKey': search_key,
                            'searchType': search_type})
+
         # 검색어 입력하지 않고 목록 조회하는 경우
         total_count = len(schedules)
         total_page = math.ceil(total_count / paginated_by)
@@ -154,8 +171,6 @@ def schedule_list(request, group_id):
         start_index = paginated_by * (page - 1)
         end_index = paginated_by * page
         schedules = schedules[start_index:end_index]
-
-        users = User.objects.all()
         return render(request, 'schedule/schedule_list.html', {'object_list': schedules, 'group':group, \
                                                        'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
     raise Http404

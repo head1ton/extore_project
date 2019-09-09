@@ -66,6 +66,7 @@ def board_list(request):
         group = Group.objects.get(id=group_id)
         group_list = request.user.members_groups.all()
         board_list = Board.objects.filter(extore_id=group_id)
+        users = User.objects.all()
 
         page = int(request.GET.get('page', 1))
         paginated_by = 3
@@ -88,6 +89,18 @@ def board_list(request):
                 first_name = search_key[1:]
                 temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
                 search_q = search_q | temp_q if search_q else temp_q
+            if len(search_type) == 0:
+                total_count = len(board_list)
+                total_page = math.ceil(total_count / paginated_by)
+                page_range = range(1, total_page + 1)
+                start_index = paginated_by * (page - 1)
+                end_index = paginated_by * page
+                board_list = board_list[start_index:end_index]
+                current_top_num = len(Board.objects.filter(extore_id=group_id)) - paginated_by * (page - 1)
+                return render(request, 'board/board_list.html', \
+                              {'board_list': board_list, 'group': group, 'group_list': group_list, \
+                               'users': users, 'total_page': total_page, 'page_range': page_range,
+                               'currentTopNum': current_top_num})
 
             board_list = board_list.filter(search_q)
             total_count = len(board_list)
@@ -96,7 +109,6 @@ def board_list(request):
             start_index = paginated_by * (page - 1)
             end_index = paginated_by * page
             board_list = board_list[start_index:end_index]
-            users = User.objects.all()
             return render(request, 'board/board_list.html', \
                       {'board_list': board_list, 'group': group, 'group_list': group_list, \
                        'users': users, 'total_page': total_page, 'page_range': page_range, 'searchKey':search_key, 'searchType':search_type})
@@ -108,15 +120,7 @@ def board_list(request):
         start_index = paginated_by * (page - 1)
         end_index = paginated_by * page
         board_list = board_list[start_index:end_index]
-        users = User.objects.all()
-
-        # num_in_turn = []
-        # for i in range(len(board_list)):
-        #     num_in_turn.append(i+1)
-        #     num_in_turn.sort(reverse=True)
-
         current_top_num = len(Board.objects.filter(extore_id=group_id)) - paginated_by*(page-1)
-
         return render(request, 'board/board_list.html',\
                       {'board_list':board_list, 'group':group, 'group_list':group_list,\
                        'users':users, 'total_page':total_page, 'page_range':page_range, 'currentTopNum':current_top_num})

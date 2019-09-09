@@ -61,6 +61,7 @@ def post_list(request):
         posts = Post.objects.filter(extore_id=group_id)
         group = Group.objects.get(id=group_id)
         group_list = request.user.members_groups.all()
+        users = User.objects.all()
 
         page = int(request.GET.get('page', 1))
         paginated_by = 3
@@ -80,6 +81,16 @@ def post_list(request):
                 first_name = search_key[1:]
                 temp_q = Q(author__last_name=last_name) & Q(author__first_name=first_name)
                 search_q = search_q | temp_q if search_q else temp_q
+            if len(search_type) == 0:
+                total_count = len(posts)
+                total_page = math.ceil(total_count / paginated_by)
+                page_range = range(1, total_page + 1)
+                start_index = paginated_by * (page - 1)
+                end_index = paginated_by * page
+                posts = posts[start_index:end_index]
+                return render(request, 'post/post_list.html', {'object_list': posts, 'group': group, \
+                                                               'group_list': group_list, 'users': users,
+                                                               'total_page': total_page, 'page_range': page_range})
 
             posts = posts.filter(search_q)
             total_count = len(posts)
@@ -88,7 +99,6 @@ def post_list(request):
             start_index = paginated_by * (page - 1)
             end_index = paginated_by * page
             posts = posts[start_index:end_index]
-            users = User.objects.all()
             return render(request, 'post/post_list.html', \
                           {'object_list': posts, 'group': group, 'group_list': group_list, \
                            'users': users, 'total_page': total_page, 'page_range': page_range, 'searchKey': search_key,
@@ -101,8 +111,6 @@ def post_list(request):
         start_index = paginated_by * (page - 1)
         end_index = paginated_by * page
         posts = posts[start_index:end_index]
-
-        users = User.objects.all()
         return render(request, 'post/post_list.html', {'object_list': posts, 'group':group, \
                                                        'group_list':group_list, 'users':users, 'total_page':total_page, 'page_range':page_range})
 
